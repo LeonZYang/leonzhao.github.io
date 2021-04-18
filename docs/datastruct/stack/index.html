@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Stack">
+<meta itemprop="description" content="栈是一个后入先出(LIFO)的数据结构，其中添加移除新项总发生在同一端。这一 端通常称为“顶部”。与顶部对应的端称为“底部”。
+栈操作如下
+Stack() 创建一个空的新栈。 它不需要参数，并返回一个空栈。
+**push(item)**将一个新项添加到栈的顶部。它需要 item 做参数并不返回任何内容。
+pop() 从栈中删除顶部项。它不需要参数并返回 item 。栈被修改。
+peek() 从栈返回顶部项，但不会删除它。不需要参数。 不修改栈。
+isEmpty() 测试栈是否为空。不需要参数，并返回布尔值。
+size() 返回栈中的 item 数量。不需要参数，并返回一个整数
+python实现 class Stack: def __init__(self): self.data = [] def push(self, ele): self.data.append(ele) def pop(self): return self.data.pop() def peek(self): return self.data[-1] def isEmpty(self): return len(self.data) == 0 def size(self): return len(self.data) 常见算法 最小栈 class MinStack: def __init__(self): self.s1 = Stack() self.s2 = Stack() def push(self, ele): self.s1.push(ele) if self.s2.size() &gt; 0: self.">
+<meta itemprop="datePublished" content="2021-04-18T15:52:28+08:00" />
+<meta itemprop="dateModified" content="2021-04-18T15:52:28+08:00" />
+<meta itemprop="wordCount" content="184">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta property="og:title" content="Stack" />
+<meta property="og:description" content="栈是一个后入先出(LIFO)的数据结构，其中添加移除新项总发生在同一端。这一 端通常称为“顶部”。与顶部对应的端称为“底部”。
+栈操作如下
+Stack() 创建一个空的新栈。 它不需要参数，并返回一个空栈。
+**push(item)**将一个新项添加到栈的顶部。它需要 item 做参数并不返回任何内容。
+pop() 从栈中删除顶部项。它不需要参数并返回 item 。栈被修改。
+peek() 从栈返回顶部项，但不会删除它。不需要参数。 不修改栈。
+isEmpty() 测试栈是否为空。不需要参数，并返回布尔值。
+size() 返回栈中的 item 数量。不需要参数，并返回一个整数
+python实现 class Stack: def __init__(self): self.data = [] def push(self, ele): self.data.append(ele) def pop(self): return self.data.pop() def peek(self): return self.data[-1] def isEmpty(self): return len(self.data) == 0 def size(self): return len(self.data) 常见算法 最小栈 class MinStack: def __init__(self): self.s1 = Stack() self.s2 = Stack() def push(self, ele): self.s1.push(ele) if self.s2.size() &gt; 0: self." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://leonzyang.github.io/datastruct/stack/" />
+<meta property="article:published_time" content="2021-04-18T15:52:28+08:00" />
+<meta property="article:modified_time" content="2021-04-18T15:52:28+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Stack"/>
+<meta name="twitter:description" content="栈是一个后入先出(LIFO)的数据结构，其中添加移除新项总发生在同一端。这一 端通常称为“顶部”。与顶部对应的端称为“底部”。
+栈操作如下
+Stack() 创建一个空的新栈。 它不需要参数，并返回一个空栈。
+**push(item)**将一个新项添加到栈的顶部。它需要 item 做参数并不返回任何内容。
+pop() 从栈中删除顶部项。它不需要参数并返回 item 。栈被修改。
+peek() 从栈返回顶部项，但不会删除它。不需要参数。 不修改栈。
+isEmpty() 测试栈是否为空。不需要参数，并返回布尔值。
+size() 返回栈中的 item 数量。不需要参数，并返回一个整数
+python实现 class Stack: def __init__(self): self.data = [] def push(self, ele): self.data.append(ele) def pop(self): return self.data.pop() def peek(self): return self.data[-1] def isEmpty(self): return len(self.data) == 0 def size(self): return len(self.data) 常见算法 最小栈 class MinStack: def __init__(self): self.s1 = Stack() self.s2 = Stack() def push(self, ele): self.s1.push(ele) if self.s2.size() &gt; 0: self."/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Stack</title>
+	<link rel="stylesheet" href="https://leonzyang.github.io/css/style.min.eac77496566fd7d5768fd650ddb0b2b181ca6a2d7c5fdd6fe6b8ba4bf47e566f.css" integrity="sha256-6sd0llZv19V2j9ZQ3bCysYHKai18X91v5ri6S/R+Vm8=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://leonzyang.github.io">LeonZhao Home</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://leonzyang.github.io/posts/">博客</a>
+				<a href="https://leonzyang.github.io/datastruct/">数据结构</a>
+				<a href="https://leonzyang.github.io/about-hugo/">关于</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://github.com/" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://leonzyang.github.io/posts/">博客</a></li>
+			<li><a href="https://leonzyang.github.io/datastruct/">数据结构</a></li>
+			<li><a href="https://leonzyang.github.io/about-hugo/">关于</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner thin animated fadeIn faster">
+		<h1>Stack</h1>
+		<div class="content">
+			<p>栈是一个后入先出(LIFO)的数据结构，其中添加移除新项总发生在同一端。这一 端通常称为“顶部”。与顶部对应的端称为“底部”。</p>
+<p><img src="/datastruct/images/stack.png" alt="栈"></p>
+<p>栈操作如下</p>
+<p><strong>Stack()</strong> 创建一个空的新栈。 它不需要参数，并返回一个空栈。</p>
+<p>**push(item)**将一个新项添加到栈的顶部。它需要 item 做参数并不返回任何内容。</p>
+<p><strong>pop()</strong> 从栈中删除顶部项。它不需要参数并返回 item 。栈被修改。</p>
+<p><strong>peek()</strong> 从栈返回顶部项，但不会删除它。不需要参数。 不修改栈。</p>
+<p><strong>isEmpty()</strong> 测试栈是否为空。不需要参数，并返回布尔值。</p>
+<p><strong>size()</strong> 返回栈中的 item 数量。不需要参数，并返回一个整数</p>
+<h3 id="python实现">python实现<a href="#python实现" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Stack</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ele</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ele</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+      
+    <span class="k">def</span> <span class="nf">peek</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">isEmpty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+    
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</code></pre></div><h3 id="常见算法">常见算法<a href="#常见算法" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<h4 id="最小栈">最小栈<a href="#最小栈" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p><img src="/datastructimages/min_stack.png" alt="最小栈"></p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">MinStack</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s1</span> <span class="o">=</span> <span class="n">Stack</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s2</span> <span class="o">=</span> <span class="n">Stack</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ele</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">ele</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">ele</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">peek</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">ele</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">s2</span><span class="o">.</span><span class="n">peek</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">peek</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">s1</span><span class="o">.</span><span class="n">peek</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">isEmpty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">s1</span><span class="p">)</span>
+</code></pre></div><h4 id="括号匹配">括号匹配：<a href="#括号匹配" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>给定一个只包括 &lsquo;('，')'，'{'，'}'，'['，']&rsquo; 的字符串，判断字符串是否有效。</p>
+<p>有效字符串需满足：</p>
+<p>左括号必须用相同类型的右括号闭合。
+左括号必须以正确的顺序闭合。
+注意空字符串可被认为是有效字符串。</p>
+<p>示例 1:</p>
+<p>输入: &ldquo;()&rdquo;
+输出: true
+示例 2:</p>
+<p>输入: &ldquo;()[]{}&rdquo;
+输出: true
+示例 3:</p>
+<p>输入: &ldquo;(]&rdquo;
+输出: false
+示例 4:</p>
+<p>输入: &ldquo;([)]&rdquo;
+输出: false
+示例 5:</p>
+<p>输入: &ldquo;{[]}&rdquo;
+输出: true</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">isValid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="n">stack</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">left_char_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;(&#39;</span><span class="p">,</span> <span class="s1">&#39;{&#39;</span><span class="p">,</span> <span class="s1">&#39;[&#39;</span><span class="p">]</span>
+        <span class="n">right_char_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;)&#39;</span><span class="p">,</span> <span class="s1">&#39;}&#39;</span><span class="p">,</span> <span class="s1">&#39;]&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">s</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">left_char_list</span><span class="p">:</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">right_char_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">left_char_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span>
+                        <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span> <span class="o">!=</span> <span class="n">right_char_list</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div>
+		</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2021 <a href="https://leonzyang.github.io">LeonZhao</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://leonzyang.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://leonzyang.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>

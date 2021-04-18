@@ -7,14 +7,72 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Sun, 18 Apr 2021 15:30:41 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 18 Apr 2021 15:53:18 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>队列</title>
+      <title>Skiplist(跳表)</title>
+      <link>https://leonzyang.github.io/datastruct/skiplist/</link>
+      <pubDate>Sun, 18 Apr 2021 15:53:18 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/datastruct/skiplist/</guid>
+      <description>跳表Golang实现 package skiplist import ( &amp;#34;fmt&amp;#34; &amp;#34;math/rand&amp;#34; &amp;#34;strconv&amp;#34; &amp;#34;strings&amp;#34; ) type Node struct { Key int Value int Forward []*Node } func NewNode(level int, key int, value int) *Node { return &amp;amp;Node{ Key: key, Value: value, Forward: make([]*Node, level), } } type SkipList struct { header *Node level int maxLevel int size int } func New(maxLevel int) *SkipList { return &amp;amp;SkipList{ header: NewNode(maxLevel, -1, -1), level: 0, maxLevel: maxLevel, } } func (s *SkipList) Search(key int) (int, bool) { updateList := s.</description>
+    </item>
+    
+    <item>
+      <title>LFU</title>
+      <link>https://leonzyang.github.io/datastruct/lfu/</link>
+      <pubDate>Sun, 18 Apr 2021 15:53:08 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/datastruct/lfu/</guid>
+      <description>least frequently used (LFU) 算法 我们使用双链表和Hash表构造LFU，可以做到O(1)的时间复杂度。
+Leetcode 460 题目书名
+请你为 最不经常使用（LFU）缓存算法设计并实现数据结构。 实现 LFUCache 类： LFUCache(int capacity) - 用数据结构的容量 capacity 初始化对象 int get(int key) - 如果键存在于缓存中，则获取键的值，否则返回 -1。 void put(int key, int value) - 如果键已存在，则变更其值；如果键不存在，请插入键值对。当缓存达到其容量时，则应该在插入新项之前，使最不经常使用的项无效。在此问题中，当存在平局（即两个或更多个键具有相同使用频率）时，应该去除 最久未使用 的键。 注意「项的使用次数」就是自插入该项以来对其调用 get 和 put 函数的次数之和。使用次数会在对应项被移除后置为 0 。 进阶： 你是否可以在 O(1) 时间复杂度内执行两项操作？ 示例： 输入： [&amp;quot;LFUCache&amp;quot;, &amp;quot;put&amp;quot;, &amp;quot;put&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;put&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;put&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;get&amp;quot;] [[2], [1, 1], [2, 2], [1], [3, 3], [2], [3], [4, 4], [1], [3], [4]] 输出： [null, null, null, 1, null, -1, 3, null, -1, 3, 4] 解释： LFUCache lFUCache = new LFUCache(2); lFUCache.</description>
+    </item>
+    
+    <item>
+      <title>LRU</title>
+      <link>https://leonzyang.github.io/datastruct/lru/</link>
+      <pubDate>Sun, 18 Apr 2021 15:53:01 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/datastruct/lru/</guid>
+      <description>####LeetCode 面试题 16.25. LRU 缓存
+设计和构建一个“最近最少使用”缓存，该缓存会删除最近最少使用的项目。缓存应该从键映射到值(允许你插入和检索特定键对应的值)，并在初始化时指定最大容量。当缓存被填满时，它应该删除最近最少使用的项目。 它应该支持以下操作： 获取数据 get 和 写入数据 put 。 获取数据 get(key) - 如果密钥 (key) 存在于缓存中，则获取密钥的值（总是正数），否则返回 -1。 写入数据 put(key, value) - 如果密钥不存在，则写入其数据值。当缓存容量达到上限时，它应该在写入新数据之前删除最近最少使用的数据值，从而为新的数据值留出空间。 示例: LRUCache cache = new LRUCache( 2 /* 缓存容量 */ ); cache.put(1, 1); cache.put(2, 2); cache.get(1); // 返回 1 cache.put(3, 3); // 该操作会使得密钥 2 作废 cache.get(2); // 返回 -1 (未找到) cache.put(4, 4); // 该操作会使得密钥 1 作废 cache.get(1); // 返回 -1 (未找到) cache.get(3); // 返回 3 cache.</description>
+    </item>
+    
+    <item>
+      <title>LinkList</title>
+      <link>https://leonzyang.github.io/datastruct/linklist/</link>
+      <pubDate>Sun, 18 Apr 2021 15:52:43 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/datastruct/linklist/</guid>
+      <description>链表是一种物理存储单元上非连续、非顺序的存储结构，数据元素的逻辑顺序是通过链表中的指针链接次序实现的。
+单链表 链表结构 class Node: def __init__(self, val): self.val = val self.next = None class LinkList: def __init__(self): self.head = None def pushFront(self, ele): # 头插入 node = Node(ele) node.next = self.head self.head = node def popFront(self): # 头删除 if self.head is None: return self.head = self.head.next def show(self): cur = self.head while cur: print(cur.val) cur = cur.next 链表遍历 链表插入时间复杂度是O(1),但是查找却是O(N)
+链表反转 def reverse(self): if self.head is None: return cur = self.</description>
+    </item>
+    
+    <item>
+      <title>Stack</title>
+      <link>https://leonzyang.github.io/datastruct/stack/</link>
+      <pubDate>Sun, 18 Apr 2021 15:52:28 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/datastruct/stack/</guid>
+      <description>栈是一个后入先出(LIFO)的数据结构，其中添加移除新项总发生在同一端。这一 端通常称为“顶部”。与顶部对应的端称为“底部”。
+栈操作如下
+Stack() 创建一个空的新栈。 它不需要参数，并返回一个空栈。
+**push(item)**将一个新项添加到栈的顶部。它需要 item 做参数并不返回任何内容。
+pop() 从栈中删除顶部项。它不需要参数并返回 item 。栈被修改。
+peek() 从栈返回顶部项，但不会删除它。不需要参数。 不修改栈。
+isEmpty() 测试栈是否为空。不需要参数，并返回布尔值。
+size() 返回栈中的 item 数量。不需要参数，并返回一个整数
+python实现 class Stack: def __init__(self): self.data = [] def push(self, ele): self.data.append(ele) def pop(self): return self.data.pop() def peek(self): return self.data[-1] def isEmpty(self): return len(self.data) == 0 def size(self): return len(self.data) 常见算法 最小栈 class MinStack: def __init__(self): self.s1 = Stack() self.s2 = Stack() def push(self, ele): self.s1.push(ele) if self.s2.size() &amp;gt; 0: self.</description>
+    </item>
+    
+    <item>
+      <title>Queue</title>
       <link>https://leonzyang.github.io/datastruct/queue/</link>
       <pubDate>Sun, 18 Apr 2021 15:30:41 +0800</pubDate>
       
       <guid>https://leonzyang.github.io/datastruct/queue/</guid>
-      <description>队列 队列是一种先入先出（FIFO）的线性表，插入元素的一端称为队尾，删除元素的一端称为队头
+      <description>队列是一种先入先出（FIFO）的线性表，插入元素的一端称为队尾，删除元素的一端称为队头
 实现 class Queue: def __init__(self): self.data = [] def enqueue(self, ele): self.data.append(ele) def dequeue(self): return self.data.pop(0) 用栈实现队列 如何用栈实现一个队列
 class Queue: def __init__(self): self.s1 = [] self.s2 = [] def enqueue(self, ele): self.s1.append(ele) def dequeue(self): while len(self.s1) &amp;gt; 0: self.s2.append(self.s1.pop()) return self.s2.pop() 双端队列 双端队列允许队尾和队头都支持插入和删除
 class Dequeue: def __init__(self): self.data = [] def addFront(self, ele): self.data.append(ele) def addRear(self, ele): self.data.insert(0, ele) def removeFront(self): self.data.pop() def removeRear(self): self.data.pop(0) def isEmpty(self) -&amp;gt; bool: return len(self.</description>
