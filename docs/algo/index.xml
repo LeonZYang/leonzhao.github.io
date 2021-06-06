@@ -7,9 +7,40 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 08 May 2021 15:11:03 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/algo/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 06 Jun 2021 10:39:29 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/algo/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>常用五大算法-回溯算法</title>
+      <title>中缀转后缀表达式</title>
+      <link>https://leonzyang.github.io/algo/rpn/</link>
+      <pubDate>Sun, 06 Jun 2021 10:39:29 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/algo/rpn/</guid>
+      <description>中缀转后缀 中缀转后缀表达式 中缀转后缀又叫逆波兰表达式，通过两个栈实现，一个是存储数字，叫数字栈，一个存储符号，叫符号栈
+ 遇到数字直接入数字栈 遇到括号，左括号，直接入符号栈，遇到右括号，符号栈为空直接入栈，从符号栈栈顶弹出运算符入数字栈，直接遇到左括号，左括号对齐 遇到运算符，如果运算符优先级大于栈顶运算符，入符号栈, 反之，将符号栈栈顶弹出运算符，入数字栈，然后再将遇到的运算符入符号栈  def rpn(s): oper_stack = Stack() num_stack = Stack() for i in range(len(s)): c = s[i] if ord(c) &amp;gt;= 48 and ord(c) &amp;lt;= 57: num_stack.push(c) elif c == &amp;#39;+&amp;#39; or c == &amp;#39;-&amp;#39;: if len(oper_stack) &amp;gt; 0 and (oper_stack.peek() == &amp;#39;*&amp;#39; or \ oper_stack.peek() == &amp;#39;/&amp;#39;): num_stack.push(oper_stack.pop()) oper_stack.push(c) elif c == &amp;#39;)&amp;#39;: while len(oper_stack) &amp;gt; 0: v = oper_stack.pop() if v == &amp;#39;(&amp;#39;: break num_stack.</description>
+    </item>
+    
+    <item>
+      <title>常见五大算法-贪心</title>
+      <link>https://leonzyang.github.io/algo/greedy/</link>
+      <pubDate>Sun, 16 May 2021 11:45:26 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/algo/greedy/</guid>
+      <description>贪心算法 常见题解 55. 跳跃游戏 给定一个非负整数数组 nums ，你最初位于数组的 第一个下标 。 数组中的每个元素代表你在该位置可以跳跃的最大长度。 判断你是否能够到达最后一个下标。 示例 1： 输入：nums = [2,3,1,1,4] 输出：true 解释：可以先跳 1 步，从下标 0 到达下标 1, 然后再从下标 1 跳 3 步到达最后一个下标。 示例 2： 输入：nums = [3,2,1,0,4] 输出：false 解释：无论怎样，总会到达下标为 3 的位置。但该下标的最大跳跃长度是 0 ， 所以永远不可能到达最后一个下标。 提示： 1 &amp;lt;= nums.length &amp;lt;= 3 * 104 0 &amp;lt;= nums[i] &amp;lt;= 105 题解 对于这道题，只要求我们返回是否可以跳到最后节点，并没有让我们用最优解，所以我们可以用贪心算法求局部最优，用maxJump存储当前可以跳跃的最大距离，然后遍历数组，如果i小于等于maxJump，则更新最大的跳跃距离，最后如果maxJump大于n-1，则说明可以达到。
+代码 class Solution: def canJump(self, nums: List[int]) -&amp;gt; bool: n = len(nums) # 可以跳跃的最大距离 maxJump = 0 for i in range(n): #  if i &amp;lt;= maxJump: maxJump = max(maxJump, i + nums[i]) if maxJump &amp;gt;= n - 1: return True return False 135.</description>
+    </item>
+    
+    <item>
+      <title>常见五大算法-递归</title>
+      <link>https://leonzyang.github.io/algo/recursion/</link>
+      <pubDate>Mon, 10 May 2021 21:33:54 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/algo/recursion/</guid>
+      <description>递归 在数学与计算机科学中，递归(Recursion)是指在函数的定义中使用函数自身的方法。实际上，递归，顾名思义，其包含了两个意思：递 和 归，这正是递归思想的精华所在。
+递归伪代码
+def recursion(参数): if 结束条件: return 处理问题 recursion(缩小参数) 汉诺塔问题 在经典汉诺塔问题中，有 3 根柱子及 N 个不同大小的穿孔圆盘，盘子可以滑入任意一根柱子。一开始，所有盘子自上而下按升序依次套在第一根柱子上(即每一个盘子只能放在更大的盘子上面)。移动圆盘时受到以下限制: (1) 每次只能移动一个盘子; (2) 盘子只能从柱子顶端滑出移到下一根柱子; (3) 盘子只能叠在比它大的盘子上。 请编写程序，用栈将所有盘子从第一根柱子移到最后一根柱子。 你需要原地修改栈。 示例1: 输入：A = [2, 1, 0], B = [], C = [] 输出：C = [2, 1, 0] 示例2: 输入：A = [1, 0], B = [], C = [] 输出：C = [1, 0] 提示: A中盘子的数目不大于14个。 n = 1 时，直接把盘子从 A 移到 C； n &amp;gt; 1 时， 1.</description>
+    </item>
+    
+    <item>
+      <title>常用五大算法-回溯</title>
       <link>https://leonzyang.github.io/algo/backtrack/</link>
       <pubDate>Sat, 08 May 2021 15:11:03 +0800</pubDate>
       
@@ -72,15 +103,6 @@
       
       <guid>https://leonzyang.github.io/algo/sort/quick_sort/</guid>
       <description> 时间复杂度O(nlogN) 不稳定排序   def quick_sort(arr, low, high): if low &amp;lt; high: m = partition(arr, low, high) quick_sort(arr, low, m) quick_sort(arr, m+1， high) def partition(arr, left, right): priv = arr[left] while left &amp;lt; right: while left &amp;lt; right and arr[right] &amp;gt; priv: right -= 1 arr[left] = arr[right] while left &amp;lt; right and arr[left] &amp;gt;= priv: left += 1 arr[right] = arr[left] arr[left] = priv return left </description>
-    </item>
-    
-    <item>
-      <title>排序算法-冒泡排序</title>
-      <link>https://leonzyang.github.io/algo/sort/bubble_sort/</link>
-      <pubDate>Sun, 18 Apr 2021 16:11:03 +0800</pubDate>
-      
-      <guid>https://leonzyang.github.io/algo/sort/bubble_sort/</guid>
-      <description> 时间复杂度O(n2) 稳定排序   def bubble_sort(arr): n = len(arr) for i in range(n): for j in range(n-i-1, i, -1): if arr[j] &amp;lt; arr[j-1]: arr[j-1], arr[j] = arr[j], arr[j-1] </description>
     </item>
     
   </channel>

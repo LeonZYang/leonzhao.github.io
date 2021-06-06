@@ -6,8 +6,77 @@
 		<generator>Hugo -- gohugo.io</generator>
 		<language>zh-cn</language>
 		<copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-		<lastBuildDate>Sat, 05 Dec 2020 00:00:00 +0000</lastBuildDate>
+		<lastBuildDate>Mon, 19 Apr 2021 20:45:00 +0800</lastBuildDate>
 		<atom:link href="https://leonzyang.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+		
+		<item>
+			<title>Go Module原理</title>
+			<link>https://leonzyang.github.io/posts/gomdule/</link>
+			<pubDate>Mon, 19 Apr 2021 20:45:00 +0800</pubDate>
+			
+			<guid>https://leonzyang.github.io/posts/gomdule/</guid>
+			<description>Go Module原理 Go
+Semantic Version 版本号遵循SemVer规范(https://semver.org/)
+最小版本选择(Minimal Version Selection) Go 1.11之前 GOROOT GOPATH
+GOPATH ├── bin //编译生成的二进制文件 ├── pkg //预编译文件，以加快程序的后续编译速度 |── src //所有源代码 ├── github.com ... ... 缺点：
+ 缺少版本管理  go1.5 vendor go.mod go1.11 已经有go mod，只是默认关闭，在go1.13 go mod将作为默认管理方式开启
+module require replace replace可以指向一个repo，也可以指向本地
+exclude 排除某个版本，实际中很少使用
+GOPROXY 地址	简介 https://goproxy.io	一个全球代理为 Go 模块而生 https://mirrors.aliyun.com/goproxy/	阿里镜像代理 https://goproxy.cn	七牛云赞助支持的
+go.sum 用于记录每个依赖包的哈希值（SHA-256 算法） 正常情况下，每个依赖包版本会包含两条记录，第一条记录为该依赖包版本整体（所有文件）的哈希值，第二条记录仅表示该依赖包版本中 go.mod 文件的哈希值，如果该依赖包版本没有 go.mod 文件，则只有第一条记录
+go list -m all 查看当前项目最终所使用的 module 版本 go list -u -m all 查看依赖的新版本 go get -u .</description>
+			<content type="html"><![CDATA[<h3 id="go-module原理">Go Module原理</h3>
+<p>Go</p>
+<h4 id="semantic-version">Semantic Version</h4>
+<p>版本号遵循<code>SemVer规范</code>(<a href="https://semver.org/">https://semver.org/</a>)</p>
+<p><img src="/posts/images/semantic_versioning.png" alt="semantic_version"></p>
+<h4 id="最小版本选择minimal-version-selection">最小版本选择(Minimal Version Selection)</h4>
+<p><img src="/posts/images/buildlist.svg" alt="semantic_version"></p>
+<h3 id="go-111之前">Go 1.11之前</h3>
+<p>GOROOT
+GOPATH</p>
+<pre><code>GOPATH
+├── bin              //编译生成的二进制文件
+├── pkg              //预编译文件，以加快程序的后续编译速度
+|── src              //所有源代码
+    ├── github.com
+    ...
+    ...
+</code></pre><p>缺点：</p>
+<ul>
+<li>缺少版本管理</li>
+</ul>
+<h4 id="go15-vendor">go1.5 <code>vendor</code></h4>
+<h3 id="gomod">go.mod</h3>
+<p>go1.11 已经有go mod，只是默认关闭，在go1.13 go mod将作为默认管理方式开启</p>
+<h4 id="module">module</h4>
+<h4 id="require">require</h4>
+<h4 id="replace">replace</h4>
+<p>replace可以指向一个repo，也可以指向本地</p>
+<h4 id="exclude">exclude</h4>
+<p>排除某个版本，实际中很少使用</p>
+<h4 id="goproxy">GOPROXY</h4>
+<p>地址	简介
+<a href="https://goproxy.io">https://goproxy.io</a>	一个全球代理为 Go 模块而生
+<a href="https://mirrors.aliyun.com/goproxy/">https://mirrors.aliyun.com/goproxy/</a>	阿里镜像代理
+<a href="https://goproxy.cn">https://goproxy.cn</a>	七牛云赞助支持的</p>
+<h3 id="gosum">go.sum</h3>
+<p>用于记录每个依赖包的哈希值（SHA-256 算法）
+正常情况下，每个依赖包版本会包含两条记录，第一条记录为该依赖包版本整体（所有文件）的哈希值，第二条记录仅表示该依赖包版本中 go.mod 文件的哈希值，如果该依赖包版本没有 go.mod 文件，则只有第一条记录</p>
+<p><code>go list -m all</code> 查看当前项目最终所使用的 module 版本
+<code>go list -u -m all</code> 查看依赖的新版本
+<code>go get -u ./...</code> 更新所有依赖到最新版
+<code>go get -u=patch ./...</code> 更新所有依赖到最新的 patch 版本
+<code>go mod tidy</code> 清理 go.mod/go.sum 中不在需要的 module
+<code>go mod vendor</code> 创建 vendor 依赖目录，这时为了与之前做兼容，后面在执行 go test/build 之类的命令时，可以加上 -mod=vendor 这个 build flag 声明使用 vendor 里面的依赖，这样 go mod 就不会再去 $GOPATH/pkg/mod 里面去找。</p>
+<h3 id="参考">参考</h3>
+<ul>
+<li><a href="https://golang.org/ref/mod">https://golang.org/ref/mod</a></li>
+<li><a href="https://xuanwo.io/2019/05/27/go-modules/">https://xuanwo.io/2019/05/27/go-modules/</a></li>
+<li><a href="https://duyanghao.github.io/golang-module/">https://duyanghao.github.io/golang-module/</a></li>
+</ul>
+]]></content>
+		</item>
 		
 		<item>
 			<title>关于</title>

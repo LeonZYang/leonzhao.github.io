@@ -7,9 +7,40 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Sat, 08 May 2021 15:11:03 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 06 Jun 2021 10:39:29 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>常用五大算法-回溯算法</title>
+      <title>中缀转后缀表达式</title>
+      <link>https://leonzyang.github.io/algo/rpn/</link>
+      <pubDate>Sun, 06 Jun 2021 10:39:29 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/algo/rpn/</guid>
+      <description>中缀转后缀 中缀转后缀表达式 中缀转后缀又叫逆波兰表达式，通过两个栈实现，一个是存储数字，叫数字栈，一个存储符号，叫符号栈
+ 遇到数字直接入数字栈 遇到括号，左括号，直接入符号栈，遇到右括号，符号栈为空直接入栈，从符号栈栈顶弹出运算符入数字栈，直接遇到左括号，左括号对齐 遇到运算符，如果运算符优先级大于栈顶运算符，入符号栈, 反之，将符号栈栈顶弹出运算符，入数字栈，然后再将遇到的运算符入符号栈  def rpn(s): oper_stack = Stack() num_stack = Stack() for i in range(len(s)): c = s[i] if ord(c) &amp;gt;= 48 and ord(c) &amp;lt;= 57: num_stack.push(c) elif c == &amp;#39;+&amp;#39; or c == &amp;#39;-&amp;#39;: if len(oper_stack) &amp;gt; 0 and (oper_stack.peek() == &amp;#39;*&amp;#39; or \ oper_stack.peek() == &amp;#39;/&amp;#39;): num_stack.push(oper_stack.pop()) oper_stack.push(c) elif c == &amp;#39;)&amp;#39;: while len(oper_stack) &amp;gt; 0: v = oper_stack.pop() if v == &amp;#39;(&amp;#39;: break num_stack.</description>
+    </item>
+    
+    <item>
+      <title>常见五大算法-贪心</title>
+      <link>https://leonzyang.github.io/algo/greedy/</link>
+      <pubDate>Sun, 16 May 2021 11:45:26 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/algo/greedy/</guid>
+      <description>贪心算法 常见题解 55. 跳跃游戏 给定一个非负整数数组 nums ，你最初位于数组的 第一个下标 。 数组中的每个元素代表你在该位置可以跳跃的最大长度。 判断你是否能够到达最后一个下标。 示例 1： 输入：nums = [2,3,1,1,4] 输出：true 解释：可以先跳 1 步，从下标 0 到达下标 1, 然后再从下标 1 跳 3 步到达最后一个下标。 示例 2： 输入：nums = [3,2,1,0,4] 输出：false 解释：无论怎样，总会到达下标为 3 的位置。但该下标的最大跳跃长度是 0 ， 所以永远不可能到达最后一个下标。 提示： 1 &amp;lt;= nums.length &amp;lt;= 3 * 104 0 &amp;lt;= nums[i] &amp;lt;= 105 题解 对于这道题，只要求我们返回是否可以跳到最后节点，并没有让我们用最优解，所以我们可以用贪心算法求局部最优，用maxJump存储当前可以跳跃的最大距离，然后遍历数组，如果i小于等于maxJump，则更新最大的跳跃距离，最后如果maxJump大于n-1，则说明可以达到。
+代码 class Solution: def canJump(self, nums: List[int]) -&amp;gt; bool: n = len(nums) # 可以跳跃的最大距离 maxJump = 0 for i in range(n): #  if i &amp;lt;= maxJump: maxJump = max(maxJump, i + nums[i]) if maxJump &amp;gt;= n - 1: return True return False 135.</description>
+    </item>
+    
+    <item>
+      <title>常见五大算法-递归</title>
+      <link>https://leonzyang.github.io/algo/recursion/</link>
+      <pubDate>Mon, 10 May 2021 21:33:54 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/algo/recursion/</guid>
+      <description>递归 在数学与计算机科学中，递归(Recursion)是指在函数的定义中使用函数自身的方法。实际上，递归，顾名思义，其包含了两个意思：递 和 归，这正是递归思想的精华所在。
+递归伪代码
+def recursion(参数): if 结束条件: return 处理问题 recursion(缩小参数) 汉诺塔问题 在经典汉诺塔问题中，有 3 根柱子及 N 个不同大小的穿孔圆盘，盘子可以滑入任意一根柱子。一开始，所有盘子自上而下按升序依次套在第一根柱子上(即每一个盘子只能放在更大的盘子上面)。移动圆盘时受到以下限制: (1) 每次只能移动一个盘子; (2) 盘子只能从柱子顶端滑出移到下一根柱子; (3) 盘子只能叠在比它大的盘子上。 请编写程序，用栈将所有盘子从第一根柱子移到最后一根柱子。 你需要原地修改栈。 示例1: 输入：A = [2, 1, 0], B = [], C = [] 输出：C = [2, 1, 0] 示例2: 输入：A = [1, 0], B = [], C = [] 输出：C = [1, 0] 提示: A中盘子的数目不大于14个。 n = 1 时，直接把盘子从 A 移到 C； n &amp;gt; 1 时， 1.</description>
+    </item>
+    
+    <item>
+      <title>常用五大算法-回溯</title>
       <link>https://leonzyang.github.io/algo/backtrack/</link>
       <pubDate>Sat, 08 May 2021 15:11:03 +0800</pubDate>
       
@@ -18,6 +49,24 @@
 框架 res = [] def backtrack(当前路径，选择列表): if 满足条件: res.append(path) return for 值 in 选择列表: 加入到当前路径 backtrack(当前路径，选择条件) 从当前路径弹出 经典题目 全排列 leetcode 46. 全排列
 给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。 示例 1： 输入：nums = [1,2,3] 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]] 示例 2： 输入：nums = [0,1] 输出：[[0,1],[1,0]] 示例 3： 输入：nums = [1] 输出：[[1]] 提示： 1 &amp;lt;= nums.length &amp;lt;= 6 -10 &amp;lt;= nums[i] &amp;lt;= 10 nums 中的所有整数 互不相同 图形展示 这张图取自网络
 解答 class Solution: def permute(self, nums: List[int]) -&amp;gt; List[List[int]]: def backtrack(nums, n, used, path, ret): if len(path) == n: ret.</description>
+    </item>
+    
+    <item>
+      <title>Go Module原理</title>
+      <link>https://leonzyang.github.io/posts/gomdule/</link>
+      <pubDate>Mon, 19 Apr 2021 20:45:00 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/posts/gomdule/</guid>
+      <description>Go Module原理 Go
+Semantic Version 版本号遵循SemVer规范(https://semver.org/)
+最小版本选择(Minimal Version Selection) Go 1.11之前 GOROOT GOPATH
+GOPATH ├── bin //编译生成的二进制文件 ├── pkg //预编译文件，以加快程序的后续编译速度 |── src //所有源代码 ├── github.com ... ... 缺点：
+ 缺少版本管理  go1.5 vendor go.mod go1.11 已经有go mod，只是默认关闭，在go1.13 go mod将作为默认管理方式开启
+module require replace replace可以指向一个repo，也可以指向本地
+exclude 排除某个版本，实际中很少使用
+GOPROXY 地址	简介 https://goproxy.io	一个全球代理为 Go 模块而生 https://mirrors.aliyun.com/goproxy/	阿里镜像代理 https://goproxy.cn	七牛云赞助支持的
+go.sum 用于记录每个依赖包的哈希值（SHA-256 算法） 正常情况下，每个依赖包版本会包含两条记录，第一条记录为该依赖包版本整体（所有文件）的哈希值，第二条记录仅表示该依赖包版本中 go.mod 文件的哈希值，如果该依赖包版本没有 go.mod 文件，则只有第一条记录
+go list -m all 查看当前项目最终所使用的 module 版本 go list -u -m all 查看依赖的新版本 go get -u .</description>
     </item>
     
     <item>
@@ -63,44 +112,6 @@
       
       <guid>https://leonzyang.github.io/algo/sort/select_sort/</guid>
       <description> 时间复杂度O(n2) 稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j+1, len(arr)): if arr[i] &amp;lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] </description>
-    </item>
-    
-    <item>
-      <title>排序算法-快速排序</title>
-      <link>https://leonzyang.github.io/algo/sort/quick_sort/</link>
-      <pubDate>Sun, 18 Apr 2021 16:11:15 +0800</pubDate>
-      
-      <guid>https://leonzyang.github.io/algo/sort/quick_sort/</guid>
-      <description> 时间复杂度O(nlogN) 不稳定排序   def quick_sort(arr, low, high): if low &amp;lt; high: m = partition(arr, low, high) quick_sort(arr, low, m) quick_sort(arr, m+1， high) def partition(arr, left, right): priv = arr[left] while left &amp;lt; right: while left &amp;lt; right and arr[right] &amp;gt; priv: right -= 1 arr[left] = arr[right] while left &amp;lt; right and arr[left] &amp;gt;= priv: left += 1 arr[right] = arr[left] arr[left] = priv return left </description>
-    </item>
-    
-    <item>
-      <title>排序算法-冒泡排序</title>
-      <link>https://leonzyang.github.io/algo/sort/bubble_sort/</link>
-      <pubDate>Sun, 18 Apr 2021 16:11:03 +0800</pubDate>
-      
-      <guid>https://leonzyang.github.io/algo/sort/bubble_sort/</guid>
-      <description> 时间复杂度O(n2) 稳定排序   def bubble_sort(arr): n = len(arr) for i in range(n): for j in range(n-i-1, i, -1): if arr[j] &amp;lt; arr[j-1]: arr[j-1], arr[j] = arr[j], arr[j-1] </description>
-    </item>
-    
-    <item>
-      <title>Skiplist(跳表)</title>
-      <link>https://leonzyang.github.io/datastruct/skiplist/</link>
-      <pubDate>Sun, 18 Apr 2021 15:53:18 +0800</pubDate>
-      
-      <guid>https://leonzyang.github.io/datastruct/skiplist/</guid>
-      <description>跳表Golang实现 package skiplist import ( &amp;#34;fmt&amp;#34; &amp;#34;math/rand&amp;#34; &amp;#34;strconv&amp;#34; &amp;#34;strings&amp;#34; ) type Node struct { Key int Value int Forward []*Node } func NewNode(level int, key int, value int) *Node { return &amp;amp;Node{ Key: key, Value: value, Forward: make([]*Node, level), } } type SkipList struct { header *Node level int maxLevel int size int } func New(maxLevel int) *SkipList { return &amp;amp;SkipList{ header: NewNode(maxLevel, -1, -1), level: 0, maxLevel: maxLevel, } } func (s *SkipList) Search(key int) (int, bool) { updateList := s.</description>
-    </item>
-    
-    <item>
-      <title>LFU</title>
-      <link>https://leonzyang.github.io/datastruct/lfu/</link>
-      <pubDate>Sun, 18 Apr 2021 15:53:08 +0800</pubDate>
-      
-      <guid>https://leonzyang.github.io/datastruct/lfu/</guid>
-      <description>least frequently used (LFU) 算法 我们使用双链表和Hash表构造LFU，可以做到O(1)的时间复杂度。
-Leetcode 460 题目书名
-请你为 最不经常使用（LFU）缓存算法设计并实现数据结构。 实现 LFUCache 类： LFUCache(int capacity) - 用数据结构的容量 capacity 初始化对象 int get(int key) - 如果键存在于缓存中，则获取键的值，否则返回 -1。 void put(int key, int value) - 如果键已存在，则变更其值；如果键不存在，请插入键值对。当缓存达到其容量时，则应该在插入新项之前，使最不经常使用的项无效。在此问题中，当存在平局（即两个或更多个键具有相同使用频率）时，应该去除 最久未使用 的键。 注意「项的使用次数」就是自插入该项以来对其调用 get 和 put 函数的次数之和。使用次数会在对应项被移除后置为 0 。 进阶： 你是否可以在 O(1) 时间复杂度内执行两项操作？ 示例： 输入： [&amp;quot;LFUCache&amp;quot;, &amp;quot;put&amp;quot;, &amp;quot;put&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;put&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;put&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;get&amp;quot;, &amp;quot;get&amp;quot;] [[2], [1, 1], [2, 2], [1], [3, 3], [2], [3], [4, 4], [1], [3], [4]] 输出： [null, null, null, 1, null, -1, 3, null, -1, 3, 4] 解释： LFUCache lFUCache = new LFUCache(2); lFUCache.</description>
     </item>
     
   </channel>
