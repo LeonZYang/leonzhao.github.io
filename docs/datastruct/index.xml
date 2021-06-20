@@ -7,7 +7,22 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Sun, 13 Jun 2021 10:56:06 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/datastruct/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 14 Jun 2021 18:01:10 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/datastruct/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>平衡二叉树</title>
+      <link>https://leonzyang.github.io/datastruct/avl/</link>
+      <pubDate>Mon, 14 Jun 2021 18:01:10 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/datastruct/avl/</guid>
+      <description>平衡二索树 平衡二叉树（AVL树）
+空间和时间复杂度 空间时间复杂为O(N)
+时间复杂度:
+ 插入 O(logN) 查询 O(logN) 删除 O(logN)  操作 插入 插入会破坏平衡，以下分四种情况说明，假设第一个破坏平衡的节点为k
+  在k节点的左子树的左子树插入   在k节点的左子树的右子树插入   在k节点的右子树的右子树插入
+   在k节点的右子树的左子树插入   删除 分为以下4中情况
+ 当前节点为删除节点，且为叶子节点，直接删除 当前节点为删除节点有且只有一个子树，将当前子树替换为当前节点 当前节点为删除节点并且左右子树同时存在，则查找左子树最大值或者右子树最小值，进行替换，并递归删除，这样操作不会影响节点平衡 当前节点不是删除节点，当删除的值小于当前节点值，则在左子树递归删除，反之则在右子树递归删除，该操作会破坏平衡，需要进行平衡操作  class TreeNode: def __init__(self, val: int, left=None, right=None): self.val = val self.left = left self.right = right self.height = 0 def __str__(self) -&amp;gt; str: return str(self.val) class AVLTree: def __init__(self): self.root = None def _height(self, node: TreeNode): return node.</description>
+    </item>
+    
     <item>
       <title>二叉搜索树</title>
       <link>https://leonzyang.github.io/datastruct/bst/</link>
