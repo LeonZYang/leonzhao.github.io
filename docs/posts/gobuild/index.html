@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Go-深入理解go程序运行和编译">
+<meta itemprop="description" content="深入理解go程序运行和编译 Go是一门需要编译才能运行语言。这篇文章主要讲解Go编译和运行原理。
+编译 。 计算机程序编译一般分为4个部分：
+ 预处理： 编译：编译过程就是把预处理完的文件进行一系列词法分析、语法分析、语义分析及优化后生产响应的汇编代码文件 汇编：汇编器将汇编代码转变成机器可以执行的指令，每一个汇编语句对应一条机器指令 链接：  GCC编译过程分解 那么一个go程序是怎么编译的呢？这里我们写hello.go
+package main import &#34;fmt&#34; func main(){ fmt.Println(&#34;Hello World!&#34;) } 当我们运行go build后，会生成一个hello的二进制文件，下图是生成的过程
+这样一个go程序就完成编译了。
+编译器 编译器一般分为前端和后端，前端主要负责生成机器无关的中间代码，后端负责代码优化和生成。Go编译器在逻辑上分为四个阶段：
+ 词法分析 语法分析 语义分析 中间码生成 机器代码生成  链接器 人们将每个源代码独立地编译，然后按照需要讲它们“组装”起来，这个组装模块的过程就是链接。
+go run 原理 go run是用来运行源码文件的命令，go run只能接受一个main包的文件作为参数，那我们看下这个文件具体做了哪些？ ioutil.TempDir(os.Getenv(&ldquo;GOTMPDIR&rdquo;), &ldquo;go-build&rdquo;)，生成的文件/tmp/go-build043758764
+执行go run 会生成4个临时文件，
+/tmp/go-build992497858/b001/ ├── exe │ └── main // 可执行文件 ├── importcfg // import config ├── importcfg.link // 链接器 └── _pkg_.a // 归档文件 静态链接和动态链接 静态链接  占用磁盘和内存 部署、更新困难  动态链接 动态链接的好处：">
+<meta itemprop="datePublished" content="2021-06-27T09:25:55+08:00" />
+<meta itemprop="dateModified" content="2021-06-27T09:25:55+08:00" />
+<meta itemprop="wordCount" content="304">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta property="og:title" content="Go-深入理解go程序运行和编译" />
+<meta property="og:description" content="深入理解go程序运行和编译 Go是一门需要编译才能运行语言。这篇文章主要讲解Go编译和运行原理。
+编译 。 计算机程序编译一般分为4个部分：
+ 预处理： 编译：编译过程就是把预处理完的文件进行一系列词法分析、语法分析、语义分析及优化后生产响应的汇编代码文件 汇编：汇编器将汇编代码转变成机器可以执行的指令，每一个汇编语句对应一条机器指令 链接：  GCC编译过程分解 那么一个go程序是怎么编译的呢？这里我们写hello.go
+package main import &#34;fmt&#34; func main(){ fmt.Println(&#34;Hello World!&#34;) } 当我们运行go build后，会生成一个hello的二进制文件，下图是生成的过程
+这样一个go程序就完成编译了。
+编译器 编译器一般分为前端和后端，前端主要负责生成机器无关的中间代码，后端负责代码优化和生成。Go编译器在逻辑上分为四个阶段：
+ 词法分析 语法分析 语义分析 中间码生成 机器代码生成  链接器 人们将每个源代码独立地编译，然后按照需要讲它们“组装”起来，这个组装模块的过程就是链接。
+go run 原理 go run是用来运行源码文件的命令，go run只能接受一个main包的文件作为参数，那我们看下这个文件具体做了哪些？ ioutil.TempDir(os.Getenv(&ldquo;GOTMPDIR&rdquo;), &ldquo;go-build&rdquo;)，生成的文件/tmp/go-build043758764
+执行go run 会生成4个临时文件，
+/tmp/go-build992497858/b001/ ├── exe │ └── main // 可执行文件 ├── importcfg // import config ├── importcfg.link // 链接器 └── _pkg_.a // 归档文件 静态链接和动态链接 静态链接  占用磁盘和内存 部署、更新困难  动态链接 动态链接的好处：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://leonzyang.github.io/posts/gobuild/" />
+<meta property="article:published_time" content="2021-06-27T09:25:55+08:00" />
+<meta property="article:modified_time" content="2021-06-27T09:25:55+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Go-深入理解go程序运行和编译"/>
+<meta name="twitter:description" content="深入理解go程序运行和编译 Go是一门需要编译才能运行语言。这篇文章主要讲解Go编译和运行原理。
+编译 。 计算机程序编译一般分为4个部分：
+ 预处理： 编译：编译过程就是把预处理完的文件进行一系列词法分析、语法分析、语义分析及优化后生产响应的汇编代码文件 汇编：汇编器将汇编代码转变成机器可以执行的指令，每一个汇编语句对应一条机器指令 链接：  GCC编译过程分解 那么一个go程序是怎么编译的呢？这里我们写hello.go
+package main import &#34;fmt&#34; func main(){ fmt.Println(&#34;Hello World!&#34;) } 当我们运行go build后，会生成一个hello的二进制文件，下图是生成的过程
+这样一个go程序就完成编译了。
+编译器 编译器一般分为前端和后端，前端主要负责生成机器无关的中间代码，后端负责代码优化和生成。Go编译器在逻辑上分为四个阶段：
+ 词法分析 语法分析 语义分析 中间码生成 机器代码生成  链接器 人们将每个源代码独立地编译，然后按照需要讲它们“组装”起来，这个组装模块的过程就是链接。
+go run 原理 go run是用来运行源码文件的命令，go run只能接受一个main包的文件作为参数，那我们看下这个文件具体做了哪些？ ioutil.TempDir(os.Getenv(&ldquo;GOTMPDIR&rdquo;), &ldquo;go-build&rdquo;)，生成的文件/tmp/go-build043758764
+执行go run 会生成4个临时文件，
+/tmp/go-build992497858/b001/ ├── exe │ └── main // 可执行文件 ├── importcfg // import config ├── importcfg.link // 链接器 └── _pkg_.a // 归档文件 静态链接和动态链接 静态链接  占用磁盘和内存 部署、更新困难  动态链接 动态链接的好处："/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Go-深入理解go程序运行和编译</title>
+	<link rel="stylesheet" href="https://leonzyang.github.io/css/style.min.eac77496566fd7d5768fd650ddb0b2b181ca6a2d7c5fdd6fe6b8ba4bf47e566f.css" integrity="sha256-6sd0llZv19V2j9ZQ3bCysYHKai18X91v5ri6S/R+Vm8=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://leonzyang.github.io">LeonZhao的小木屋</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://leonzyang.github.io/posts/">博客</a>
+				<a href="https://leonzyang.github.io/datastruct/">数据结构</a>
+				<a href="https://leonzyang.github.io/algo/">算法</a>
+				<a href="https://leonzyang.github.io/network/">网络</a>
+				<a href="https://leonzyang.github.io/interview/">面试</a>
+				<a href="https://leonzyang.github.io/about/">关于</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://github.com/" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://leonzyang.github.io/posts/">博客</a></li>
+			<li><a href="https://leonzyang.github.io/datastruct/">数据结构</a></li>
+			<li><a href="https://leonzyang.github.io/algo/">算法</a></li>
+			<li><a href="https://leonzyang.github.io/network/">网络</a></li>
+			<li><a href="https://leonzyang.github.io/interview/">面试</a></li>
+			<li><a href="https://leonzyang.github.io/about/">关于</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Jun 27, 2021</span></div>
+				<h1>Go-深入理解go程序运行和编译</h1>
+			</header>
+			<div class="content">
+				<h2 id="深入理解go程序运行和编译">深入理解go程序运行和编译<a href="#深入理解go程序运行和编译" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>Go是一门需要编译才能运行语言。这篇文章主要讲解Go编译和运行原理。</p>
+<h3 id="编译">编译<a href="#编译" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>。
+计算机程序编译一般分为4个部分：</p>
+<ul>
+<li>预处理：</li>
+<li>编译：编译过程就是把预处理完的文件进行一系列词法分析、语法分析、语义分析及优化后生产响应的汇编代码文件</li>
+<li>汇编：汇编器将汇编代码转变成机器可以执行的指令，每一个汇编语句对应一条机器指令</li>
+<li>链接：</li>
+</ul>
+<p>GCC编译过程分解
+<img src="/posts/images/gcc_build.png" alt="gcc"></p>
+<p>那么一个go程序是怎么编译的呢？这里我们写hello.go</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">(){</span>
+    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Hello World!&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><p>当我们运行<code>go build</code>后，会生成一个hello的二进制文件，下图是生成的过程</p>
+<p><img src="/posts/images/building.png" alt="building"></p>
+<p>这样一个go程序就完成编译了。</p>
+<h4 id="编译器">编译器<a href="#编译器" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>编译器一般分为前端和后端，前端主要负责生成机器无关的中间代码，后端负责代码优化和生成。Go编译器在逻辑上分为四个阶段：</p>
+<ul>
+<li>词法分析</li>
+<li>语法分析</li>
+<li>语义分析</li>
+<li>中间码生成</li>
+<li>机器代码生成</li>
+</ul>
+<p><img src="/posts/images/build.png" alt="build"></p>
+<h4 id="链接器">链接器<a href="#链接器" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>人们将每个源代码独立地编译，然后按照需要讲它们“组装”起来，这个组装模块的过程就是链接。</p>
+<h3 id="go-run-原理">go run 原理<a href="#go-run-原理" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p><code>go run</code>是用来运行源码文件的命令，<code>go run</code>只能接受一个<code>main</code>包的文件作为参数，那我们看下这个文件具体做了哪些？
+ioutil.TempDir(os.Getenv(&ldquo;GOTMPDIR&rdquo;), &ldquo;go-build&rdquo;)，生成的文件/tmp/go-build043758764</p>
+<p>执行go run 会生成4个临时文件，</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">/tmp/go-build992497858/b001/
+├── exe
+│   └── main    // 可执行文件
+├── importcfg   // import config
+├── importcfg.link  // 链接器
+└── _pkg_.a       // 归档文件
+</code></pre></div><h4 id="静态链接和动态链接">静态链接和动态链接<a href="#静态链接和动态链接" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<h3 id="静态链接">静态链接<a href="#静态链接" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<ul>
+<li>占用磁盘和内存</li>
+<li>部署、更新困难</li>
+</ul>
+<h3 id="动态链接">动态链接<a href="#动态链接" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>动态链接的好处：</p>
+<ul>
+<li>增加程序的兼容性</li>
+<li>减少物理页面的换入换出</li>
+<li>增加CPU缓存的命中率</li>
+</ul>
+<p>动态链接的升级：只要将旧模块覆盖掉，无需将所有程序再重新链接一遍，当程序下一次运行的时候，新版本的目标文件就会自动装载到内存中并且链接起来，程序就完成了升级</p>
+<h3 id="go程序启动">go程序启动<a href="#go程序启动" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>go程序启动主要分为下面几个阶段：</p>
+<h4 id="设置tls">设置TLS<a href="#设置tls" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>即Thread Local Storage，线程私有存储，每个CPU的寄存器内存少之又少，所以为了保证线程互不干扰，就有了TLS，设置TLS</p>
+<h4 id="初始化参数runtimeargs">初始化参数runtime.args<a href="#初始化参数runtimeargs" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<h4 id="osinit">osinit<a href="#osinit" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>获取CPU的数量</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">osinit</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">ncpu</span> <span class="p">=</span> <span class="nf">getproccount</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="schedinit">schedinit<a href="#schedinit" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">schedinit</span><span class="p">()</span> <span class="p">{</span>
+	<span class="c1">// raceinit must be the first call to race detector.
+</span><span class="c1"></span>	<span class="c1">// In particular, it must be done before mallocinit below calls racemapshadow.
+</span><span class="c1"></span>	<span class="c1">// 获取当前g
+</span><span class="c1"></span>  <span class="nx">_g_</span> <span class="o">:=</span> <span class="nf">getg</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">raceenabled</span> <span class="p">{</span>
+		<span class="nx">_g_</span><span class="p">.</span><span class="nx">racectx</span><span class="p">,</span> <span class="nx">raceprocctx0</span> <span class="p">=</span> <span class="nf">raceinit</span><span class="p">()</span>
+	<span class="p">}</span>
+  <span class="c1">// 最大线程数量
+</span><span class="c1"></span>	<span class="nx">sched</span><span class="p">.</span><span class="nx">maxmcount</span> <span class="p">=</span> <span class="mi">10000</span>
+
+	<span class="nf">tracebackinit</span><span class="p">()</span>
+  <span class="nf">moduledataverify</span><span class="p">()</span>
+  <span class="c1">// 栈初始化
+</span><span class="c1"></span>	<span class="nf">stackinit</span><span class="p">()</span>
+	<span class="nf">mallocinit</span><span class="p">()</span>
+	<span class="nf">mcommoninit</span><span class="p">(</span><span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">)</span>
+	<span class="nf">cpuinit</span><span class="p">()</span>       <span class="c1">// must run before alginit
+</span><span class="c1"></span>	<span class="nf">alginit</span><span class="p">()</span>       <span class="c1">// maps must not be used before this call
+</span><span class="c1"></span>	<span class="nf">modulesinit</span><span class="p">()</span>   <span class="c1">// provides activeModules
+</span><span class="c1"></span>	<span class="nf">typelinksinit</span><span class="p">()</span> <span class="c1">// uses maps, activeModules
+</span><span class="c1"></span>	<span class="nf">itabsinit</span><span class="p">()</span>     <span class="c1">// uses activeModules
+</span><span class="c1"></span>
+	<span class="nf">msigsave</span><span class="p">(</span><span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">)</span>
+	<span class="nx">initSigmask</span> <span class="p">=</span> <span class="nx">_g_</span><span class="p">.</span><span class="nx">m</span><span class="p">.</span><span class="nx">sigmask</span>
+
+	<span class="nf">goargs</span><span class="p">()</span>
+	<span class="nf">goenvs</span><span class="p">()</span>
+	<span class="nf">parsedebugvars</span><span class="p">()</span>
+	<span class="nf">gcinit</span><span class="p">()</span>
+
+	<span class="nx">sched</span><span class="p">.</span><span class="nx">lastpoll</span> <span class="p">=</span> <span class="nb">uint64</span><span class="p">(</span><span class="nf">nanotime</span><span class="p">())</span>
+	<span class="nx">procs</span> <span class="o">:=</span> <span class="nx">ncpu</span>
+	<span class="k">if</span> <span class="nx">n</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nf">atoi32</span><span class="p">(</span><span class="nf">gogetenv</span><span class="p">(</span><span class="s">&#34;GOMAXPROCS&#34;</span><span class="p">));</span> <span class="nx">ok</span> <span class="o">&amp;&amp;</span> <span class="nx">n</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="nx">procs</span> <span class="p">=</span> <span class="nx">n</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nf">procresize</span><span class="p">(</span><span class="nx">procs</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nf">throw</span><span class="p">(</span><span class="s">&#34;unknown runnable goroutine during bootstrap&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="c1">// For cgocheck &gt; 1, we turn on the write barrier at all times
+</span><span class="c1"></span>	<span class="c1">// and check all pointer writes. We can&#39;t do this until after
+</span><span class="c1"></span>	<span class="c1">// procresize because the write barrier needs a P.
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">debug</span><span class="p">.</span><span class="nx">cgocheck</span> <span class="p">&gt;</span> <span class="mi">1</span> <span class="p">{</span>
+		<span class="nx">writeBarrier</span><span class="p">.</span><span class="nx">cgo</span> <span class="p">=</span> <span class="kc">true</span>
+		<span class="nx">writeBarrier</span><span class="p">.</span><span class="nx">enabled</span> <span class="p">=</span> <span class="kc">true</span>
+		<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">p</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">allp</span> <span class="p">{</span>
+			<span class="nx">p</span><span class="p">.</span><span class="nx">wbBuf</span><span class="p">.</span><span class="nf">reset</span><span class="p">()</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nx">buildVersion</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+		<span class="c1">// Condition should never trigger. This code just serves
+</span><span class="c1"></span>		<span class="c1">// to ensure runtime·buildVersion is kept in the resulting binary.
+</span><span class="c1"></span>		<span class="nx">buildVersion</span> <span class="p">=</span> <span class="s">&#34;unknown&#34;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="newprocmstart">newproc&amp;mstart<a href="#newprocmstart" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>newoproc和mstart的作用创建goroutine绑定到用户main方法，并且开始调度，具体可以看之前的文章<a href="goroutine.md">深入理解goroutine</a></p>
+<h3 id="参考">参考<a href="#参考" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<ol>
+<li>Golang启动流程 <a href="https://blog.iceinto.com/posts/go/start/">https://blog.iceinto.com/posts/go/start/</a></li>
+<li><a href="https://draveness.me/golang/docs/part1-prerequisite/ch02-compile/golang-machinecode/">https://draveness.me/golang/docs/part1-prerequisite/ch02-compile/golang-machinecode/</a></li>
+<li>初探Go的编译命令执行过程 <a href="https://halfrost.com/go_command/">https://halfrost.com/go_command/</a></li>
+<li>也谈Go的可移植性https://tonybai.com/2017/06/27/an-intro-about-go-portability/</li>
+</ol>
+
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2021-06-27 09:25 &#43;0800</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="next-post" href="https://leonzyang.github.io/posts/gohttp/">
+				<span class="post-nav-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>&nbsp;</span><br><span>Go-深入理解HTTP</span>
+			</a>
+			<a class="prev-post" href="https://leonzyang.github.io/posts/gc/">
+				<span class="post-nav-label">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Go-深入理解GC</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2021 <a href="https://leonzyang.github.io">LeonZhao</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://leonzyang.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://leonzyang.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>

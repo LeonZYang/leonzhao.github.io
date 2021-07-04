@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Python-生成器">
+<meta itemprop="description" content="理解装饰器 装饰器是Python里面经常使用到的一个功能，通过装饰器我们能在不修改函数的情况下为函数增加一些功能，装饰器通过语法糖调用
+装饰器 普通装饰器 def logger(func): def decorator(*args, **kwargs): print(&#34;func start&#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&#34;my name is %s&#34; % name) func(&#34;leon&#34;) 这是个装饰器的简单例子，整个调用其实就相当于logger(func(name)), 如果是有多个装饰的情况下，那么调用顺序是怎样的？
+@A @B @C def func(): pass 上面执行的的过程就是A(B(C(func())))
+wraps 我们先看一个例子
+def logger(func): def decorator(*args, **kwargs): print(&#34;func start&#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&#34;my name is %s&#34; % name) func(&#34;leon&#34;) print(func.__name__) # decorator 当我们调用func.name 原本上应该输出func，但是因为加入了装饰器，导致__name__、__doc__等一些构造函数被改变了，那么如果我们如何解决这个问题呢？ 这里就需要用到functools.wraps，我们看下加入wraps试下
+from functools import wraps def logger(func): @wraps(func) def decorator(*args, **kwargs): print(&#34;func start&#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&#34;my name is %s&#34; % name) func(&#34;leon&#34;) print(func.">
+<meta itemprop="datePublished" content="2021-06-27T09:58:27+08:00" />
+<meta itemprop="dateModified" content="2021-06-27T09:58:27+08:00" />
+<meta itemprop="wordCount" content="447">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta property="og:title" content="Python-生成器" />
+<meta property="og:description" content="理解装饰器 装饰器是Python里面经常使用到的一个功能，通过装饰器我们能在不修改函数的情况下为函数增加一些功能，装饰器通过语法糖调用
+装饰器 普通装饰器 def logger(func): def decorator(*args, **kwargs): print(&#34;func start&#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&#34;my name is %s&#34; % name) func(&#34;leon&#34;) 这是个装饰器的简单例子，整个调用其实就相当于logger(func(name)), 如果是有多个装饰的情况下，那么调用顺序是怎样的？
+@A @B @C def func(): pass 上面执行的的过程就是A(B(C(func())))
+wraps 我们先看一个例子
+def logger(func): def decorator(*args, **kwargs): print(&#34;func start&#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&#34;my name is %s&#34; % name) func(&#34;leon&#34;) print(func.__name__) # decorator 当我们调用func.name 原本上应该输出func，但是因为加入了装饰器，导致__name__、__doc__等一些构造函数被改变了，那么如果我们如何解决这个问题呢？ 这里就需要用到functools.wraps，我们看下加入wraps试下
+from functools import wraps def logger(func): @wraps(func) def decorator(*args, **kwargs): print(&#34;func start&#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&#34;my name is %s&#34; % name) func(&#34;leon&#34;) print(func." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://leonzyang.github.io/posts/py-decorator/" />
+<meta property="article:published_time" content="2021-06-27T09:58:27+08:00" />
+<meta property="article:modified_time" content="2021-06-27T09:58:27+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Python-生成器"/>
+<meta name="twitter:description" content="理解装饰器 装饰器是Python里面经常使用到的一个功能，通过装饰器我们能在不修改函数的情况下为函数增加一些功能，装饰器通过语法糖调用
+装饰器 普通装饰器 def logger(func): def decorator(*args, **kwargs): print(&#34;func start&#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&#34;my name is %s&#34; % name) func(&#34;leon&#34;) 这是个装饰器的简单例子，整个调用其实就相当于logger(func(name)), 如果是有多个装饰的情况下，那么调用顺序是怎样的？
+@A @B @C def func(): pass 上面执行的的过程就是A(B(C(func())))
+wraps 我们先看一个例子
+def logger(func): def decorator(*args, **kwargs): print(&#34;func start&#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&#34;my name is %s&#34; % name) func(&#34;leon&#34;) print(func.__name__) # decorator 当我们调用func.name 原本上应该输出func，但是因为加入了装饰器，导致__name__、__doc__等一些构造函数被改变了，那么如果我们如何解决这个问题呢？ 这里就需要用到functools.wraps，我们看下加入wraps试下
+from functools import wraps def logger(func): @wraps(func) def decorator(*args, **kwargs): print(&#34;func start&#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&#34;my name is %s&#34; % name) func(&#34;leon&#34;) print(func."/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Python-生成器</title>
+	<link rel="stylesheet" href="https://leonzyang.github.io/css/style.min.eac77496566fd7d5768fd650ddb0b2b181ca6a2d7c5fdd6fe6b8ba4bf47e566f.css" integrity="sha256-6sd0llZv19V2j9ZQ3bCysYHKai18X91v5ri6S/R+Vm8=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://leonzyang.github.io">LeonZhao的小木屋</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://leonzyang.github.io/posts/">博客</a>
+				<a href="https://leonzyang.github.io/datastruct/">数据结构</a>
+				<a href="https://leonzyang.github.io/algo/">算法</a>
+				<a href="https://leonzyang.github.io/network/">网络</a>
+				<a href="https://leonzyang.github.io/interview/">面试</a>
+				<a href="https://leonzyang.github.io/about/">关于</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://github.com/" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://leonzyang.github.io/posts/">博客</a></li>
+			<li><a href="https://leonzyang.github.io/datastruct/">数据结构</a></li>
+			<li><a href="https://leonzyang.github.io/algo/">算法</a></li>
+			<li><a href="https://leonzyang.github.io/network/">网络</a></li>
+			<li><a href="https://leonzyang.github.io/interview/">面试</a></li>
+			<li><a href="https://leonzyang.github.io/about/">关于</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Jun 27, 2021</span></div>
+				<h1>Python-生成器</h1>
+			</header>
+			<div class="content">
+				<h2 id="理解装饰器">理解装饰器<a href="#理解装饰器" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>装饰器是Python里面经常使用到的一个功能，通过装饰器我们能在不修改函数的情况下为函数增加一些功能，装饰器通过语法糖调用</p>
+<h3 id="装饰器">装饰器<a href="#装饰器" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<h4 id="普通装饰器">普通装饰器<a href="#普通装饰器" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">logger</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;func start&#34;</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+<span class="nd">@logger</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;my name is </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+
+
+<span class="n">func</span><span class="p">(</span><span class="s2">&#34;leon&#34;</span><span class="p">)</span>
+</code></pre></div><p>这是个装饰器的简单例子，整个调用其实就相当于logger(func(name)), 如果是有多个装饰的情况下，那么调用顺序是怎样的？</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="nd">@A</span>
+<span class="nd">@B</span>
+<span class="nd">@C</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">():</span>
+    <span class="k">pass</span>
+</code></pre></div><p>上面执行的的过程就是A(B(C(func())))</p>
+<h4 id="wraps">wraps<a href="#wraps" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>我们先看一个例子</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">logger</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;func start&#34;</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+<span class="nd">@logger</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;my name is </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+
+
+<span class="n">func</span><span class="p">(</span><span class="s2">&#34;leon&#34;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>   <span class="c1"># decorator</span>
+</code></pre></div><p>当我们调用func.<strong>name</strong> 原本上应该输出func，但是因为加入了装饰器，导致__name__、__doc__等一些构造函数被改变了，那么如果我们如何解决这个问题呢？
+这里就需要用到functools.wraps，我们看下加入wraps试下</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="k">def</span> <span class="nf">logger</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;func start&#34;</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+<span class="nd">@logger</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;my name is </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+
+
+<span class="n">func</span><span class="p">(</span><span class="s2">&#34;leon&#34;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>    <span class="c1"># func</span>
+</code></pre></div><p>这里__name__是我们预期的，wraps到底做了些什么事情，这里我们看下源码</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">WRAPPER_ASSIGNMENTS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;__module__&#39;</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">,</span> <span class="s1">&#39;__qualname__&#39;</span><span class="p">,</span> <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;__annotations__&#39;</span><span class="p">)</span>
+<span class="n">WRAPPER_UPDATES</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;__dict__&#39;</span><span class="p">,)</span>
+<span class="k">def</span> <span class="nf">update_wrapper</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span>
+                   <span class="n">wrapped</span><span class="p">,</span>
+                   <span class="n">assigned</span> <span class="o">=</span> <span class="n">WRAPPER_ASSIGNMENTS</span><span class="p">,</span>
+                   <span class="n">updated</span> <span class="o">=</span> <span class="n">WRAPPER_UPDATES</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;Update a wrapper function to look like the wrapped function
+</span><span class="s2">
+</span><span class="s2">       wrapper is the function to be updated
+</span><span class="s2">       wrapped is the original function
+</span><span class="s2">       assigned is a tuple naming the attributes assigned directly
+</span><span class="s2">       from the wrapped function to the wrapper function (defaults to
+</span><span class="s2">       functools.WRAPPER_ASSIGNMENTS)
+</span><span class="s2">       updated is a tuple naming the attributes of the wrapper that
+</span><span class="s2">       are updated with the corresponding attribute from the wrapped
+</span><span class="s2">       function (defaults to functools.WRAPPER_UPDATES)
+</span><span class="s2">    &#34;&#34;&#34;</span>
+    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">assigned</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">updated</span><span class="p">:</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="n">wrapper</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="p">{}))</span>
+    <span class="c1"># Issue #17482: set __wrapped__ last so we don&#39;t inadvertently copy it</span>
+    <span class="c1"># from the wrapped function when updating __dict__</span>
+    <span class="n">wrapper</span><span class="o">.</span><span class="n">__wrapped__</span> <span class="o">=</span> <span class="n">wrapped</span>
+    <span class="c1"># Return the wrapper so this can be used as a decorator via partial()</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="k">def</span> <span class="nf">wraps</span><span class="p">(</span><span class="n">wrapped</span><span class="p">,</span>
+          <span class="n">assigned</span> <span class="o">=</span> <span class="n">WRAPPER_ASSIGNMENTS</span><span class="p">,</span>
+          <span class="n">updated</span> <span class="o">=</span> <span class="n">WRAPPER_UPDATES</span><span class="p">):</span>
+    <span class="s2">&#34;&#34;&#34;Decorator factory to apply update_wrapper() to a wrapper function
+</span><span class="s2">
+</span><span class="s2">       Returns a decorator that invokes update_wrapper() with the decorated
+</span><span class="s2">       function as the wrapper argument and the arguments to wraps() as the
+</span><span class="s2">       remaining arguments. Default arguments are as for update_wrapper().
+</span><span class="s2">       This is a convenience function to simplify applying partial() to
+</span><span class="s2">       update_wrapper().
+</span><span class="s2">    &#34;&#34;&#34;</span>
+    <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">update_wrapper</span><span class="p">,</span> <span class="n">wrapped</span><span class="o">=</span><span class="n">wrapped</span><span class="p">,</span>
+                   <span class="n">assigned</span><span class="o">=</span><span class="n">assigned</span><span class="p">,</span> <span class="n">updated</span><span class="o">=</span><span class="n">updated</span><span class="p">)</span>
+
+</code></pre></div><p>从源码上看wraps最终是调用了update_wrapper， 这里会将___name__,__doc__等一些构造函数从原函数赋值到wrapped的的函数中</p>
+<h4 id="带参数的装饰器">带参数的装饰器<a href="#带参数的装饰器" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>如果我们想给装饰器加一些参数呢，这个要怎么做？</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+<span class="k">def</span> <span class="nf">need_logger</span><span class="p">(</span><span class="n">need</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">logger</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">need</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&#34;func start&#34;</span><span class="p">)</span>
+            <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">decorator</span>
+    <span class="k">return</span> <span class="n">logger</span>
+
+<span class="nd">@need_logger</span><span class="p">(</span><span class="n">need</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;my name is </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+
+
+<span class="n">func</span><span class="p">(</span><span class="s2">&#34;leon&#34;</span><span class="p">)</span>
+</code></pre></div><p>如果装饰器要带参数的话，我们需要再把装饰器加一层，这个是函数的，我们也可以用类实现带参数的装饰器</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">CustomLogger</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">need</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">need</span> <span class="o">=</span> <span class="n">need</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">need</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s2">&#34;func start 2&#34;</span><span class="p">)</span>
+            <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">decorator</span>
+
+
+<span class="nd">@CustomLogger</span><span class="p">(</span><span class="n">need</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;my name is </span><span class="si">%s</span><span class="s2">&#34;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+</code></pre></div><p>第二种方法是不是有点不一样的感觉，通过类，我们可以将装饰器封装成一个完成包，去集成我们自己的功能</p>
+<h3 id="内置的三个装饰器">内置的三个装饰器<a href="#内置的三个装饰器" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>这里我们讲一下Python里面内置的装饰器</p>
+<h4 id="property">property<a href="#property" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>通过@property我们可以将一个函数变成一个属性进行调用，很大程度的方便了我们使用</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Demo</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+    
+    <span class="nd">@get_value.setter</span>
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">Demo</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get_value</span><span class="p">)</span>   <span class="c1"># 0</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">set_value</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get_value</span><span class="p">)</span>   <span class="c1"># 1</span>
+</code></pre></div><h4 id="classmethod">classmethod<a href="#classmethod" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>classmethod和类绑定，不是和实例绑定, classmethod接收一个类参数cls, 可以修改类的状态，并将其作用到所有的类实例上</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Demo</span><span class="p">():</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_value2</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">value</span>
+
+
+<span class="k">print</span><span class="p">(</span><span class="n">Demo</span><span class="o">.</span><span class="n">get_value2</span><span class="p">())</span>  <span class="c1"># 2</span>
+<span class="k">print</span><span class="p">(</span><span class="n">Demo</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>    <span class="c1"># 2</span>
+</code></pre></div><p>可以看到，我们通过类方法修改的值已经作用域所有的类实例了</p>
+<h4 id="staticmethod">staticmethod<a href="#staticmethod" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>静态方法跟普通函数没什么区别，通过类和实例都可以直接该函数</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Demo</span><span class="p">():</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">&#34;ok&#34;</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">Demo</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span>  <span class="c1"># ok</span>
+</code></pre></div>
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2021-06-27 09:58 &#43;0800</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="next-post" href="https://leonzyang.github.io/posts/py-generator/">
+				<span class="post-nav-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>&nbsp;</span><br><span>Python-生成器</span>
+			</a>
+			<a class="prev-post" href="https://leonzyang.github.io/posts/py-singleleton/">
+				<span class="post-nav-label">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Python-单例模式</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2021 <a href="https://leonzyang.github.io">LeonZhao</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://leonzyang.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://leonzyang.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>

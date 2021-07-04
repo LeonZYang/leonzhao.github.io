@@ -1,13 +1,36 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>文章列表 on LeonZhao Home</title>
+    <title>文章列表 on LeonZhao的小木屋</title>
     <link>https://leonzyang.github.io/datastruct/</link>
-    <description>Recent content in 文章列表 on LeonZhao Home</description>
+    <description>Recent content in 文章列表 on LeonZhao的小木屋</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Mon, 14 Jun 2021 18:01:10 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/datastruct/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 26 Jun 2021 15:54:10 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/datastruct/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LRU-K算法</title>
+      <link>https://leonzyang.github.io/datastruct/lru-k/</link>
+      <pubDate>Sat, 26 Jun 2021 15:54:10 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/datastruct/lru-k/</guid>
+      <description>LRU-K LRU-K的主要目的是为了解决LRU算法“缓存污染”的问题，其核心思想是将“最近使用过1次”的判断标准扩展为“最近使用过K次”。也就是说没有到达K次访问的数据并不会被缓存，这也意味着需要对于缓存数据的访问次数进行计数，并且访问记录不能无限记录，也需要使用替换算法进行替换。当需要淘汰数据时，LRU-K会淘汰第K次访问时间距当前时间最大的数据。
+缺点 缺点是需要一块空间存储history
+之前我们学的LRU算法其实就是LRU-1, 一般会考虑才用LRU-2
+核心思想 有两个存储空间，一块叫历史空间，存储访问次数低于K的缓存；另一块叫缓存空间，存储超过K次的数据。历史空间按照一定的算法淘汰过期数据（FIFO, LRU，文章中采用的是LRU），当数据访问次数达到K次，则将其加入到缓存空间中，并从历史空间中删除。
+代码 package main import ( &amp;#34;container/list&amp;#34; &amp;#34;fmt&amp;#34; ) type Item struct { k int v int visit int } func NewItem(k int, v int, visit int) *Item { return &amp;amp;Item{k: k, v: v, visit: visit} } type LRUKCache struct { k int historyCap int history *list.List historyData map[int]*list.Element cacheCap int cache *list.List cacheData map[int]*list.Element } func NewLRUKCache(k int, historyCap int, cacheCap int) LRUKCache { return LRUKCache{ k: k, historyCap: historyCap, history: list.</description>
+    </item>
+    
+    <item>
+      <title>前缀树</title>
+      <link>https://leonzyang.github.io/datastruct/trie/</link>
+      <pubDate>Tue, 22 Jun 2021 20:50:13 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/datastruct/trie/</guid>
+      <description>Trie树（前缀树） Trie树，又叫字典树、前缀树（Prefix Tree）、单词查找树 或 键树，是一种多叉树结构。
+Trie性质  根节点不包含字符，除根节点外的每一个子节点都包含一个字符 从根节点到某一个节点，路径上经过的字符连接起来，为该节点对应的字符串 每个节点的所有子节点包含的字符互不相同  Trie树优缺点 优点  查询和插入的时间效率为O(m), m为查找和插入字符串的长度 不用求Hash值，对短字符串很快  缺点  Trie树的核心思想是空间换时间  代码实现 class TreeNode: def __init__(self): self.nodes = [None] * 26 self.count = 0 class Trie: def __init__(self): &amp;#34;&amp;#34;&amp;#34; Initialize your data structure here. &amp;#34;&amp;#34;&amp;#34; self.root = TreeNode() self.start_char = ord(&amp;#39;a&amp;#39;) def insert(self, word: str) -&amp;gt; None: &amp;#34;&amp;#34;&amp;#34; Inserts a word into the trie. &amp;#34;&amp;#34;&amp;#34; node = self.root for s in word: idx = ord(s)-self.</description>
+    </item>
+    
     <item>
       <title>平衡二叉树</title>
       <link>https://leonzyang.github.io/datastruct/avl/</link>

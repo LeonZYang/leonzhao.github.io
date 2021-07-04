@@ -47,14 +47,16 @@
 		<div class="hdr-wrapper section-inner">
 			<div class="hdr-left">
 				<div class="site-branding">
-					<a href="https://leonzyang.github.io">LeonZhao Home</a>
+					<a href="https://leonzyang.github.io">LeonZhao的小木屋</a>
 				</div>
 				<nav class="site-nav hide-in-mobile">
 					
 				<a href="https://leonzyang.github.io/posts/">博客</a>
 				<a href="https://leonzyang.github.io/datastruct/">数据结构</a>
 				<a href="https://leonzyang.github.io/algo/">算法</a>
-				<a href="https://leonzyang.github.io/about-hugo/">关于</a>
+				<a href="https://leonzyang.github.io/network/">网络</a>
+				<a href="https://leonzyang.github.io/interview/">面试</a>
+				<a href="https://leonzyang.github.io/about/">关于</a>
 
 				</nav>
 			</div>
@@ -68,7 +70,9 @@
 			<li><a href="https://leonzyang.github.io/posts/">博客</a></li>
 			<li><a href="https://leonzyang.github.io/datastruct/">数据结构</a></li>
 			<li><a href="https://leonzyang.github.io/algo/">算法</a></li>
-			<li><a href="https://leonzyang.github.io/about-hugo/">关于</a></li>
+			<li><a href="https://leonzyang.github.io/network/">网络</a></li>
+			<li><a href="https://leonzyang.github.io/interview/">面试</a></li>
+			<li><a href="https://leonzyang.github.io/about/">关于</a></li>
 		</ul>
 	</div>
 
@@ -115,7 +119,7 @@
         <span class="n">ans</span> <span class="o">+=</span> <span class="n">v</span>
     <span class="k">return</span> <span class="n">ans</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 </code></pre></div><h3 id="后缀表达式计算">后缀表达式计算<a href="#后缀表达式计算" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
-<p>定义一个<code>数字栈</code>，如果是数字则入栈，如果是运算符则弹出栈顶两个元素，进行计算后再入栈，知道最后，然后从栈中弹出计算。</p>
+<p>定义一个<code>数字栈</code>，如果是数字则入栈，如果是运算符则弹出栈顶两个元素，进行计算后再入栈，直到最后，然后从栈中弹出计算。</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">cal</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="n">num_stack</span> <span class="o">=</span> <span class="n">Stack</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>

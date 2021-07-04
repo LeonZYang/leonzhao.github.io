@@ -13,7 +13,7 @@
 链表反转 def reverse(self): if self.head is None: return cur = self.">
 <meta itemprop="datePublished" content="2021-04-18T15:52:43+08:00" />
 <meta itemprop="dateModified" content="2021-04-18T15:52:43+08:00" />
-<meta itemprop="wordCount" content="374">
+<meta itemprop="wordCount" content="414">
 
 
 
@@ -50,14 +50,16 @@
 		<div class="hdr-wrapper section-inner">
 			<div class="hdr-left">
 				<div class="site-branding">
-					<a href="https://leonzyang.github.io">LeonZhao Home</a>
+					<a href="https://leonzyang.github.io">LeonZhao的小木屋</a>
 				</div>
 				<nav class="site-nav hide-in-mobile">
 					
 				<a href="https://leonzyang.github.io/posts/">博客</a>
 				<a href="https://leonzyang.github.io/datastruct/">数据结构</a>
 				<a href="https://leonzyang.github.io/algo/">算法</a>
-				<a href="https://leonzyang.github.io/about-hugo/">关于</a>
+				<a href="https://leonzyang.github.io/network/">网络</a>
+				<a href="https://leonzyang.github.io/interview/">面试</a>
+				<a href="https://leonzyang.github.io/about/">关于</a>
 
 				</nav>
 			</div>
@@ -71,7 +73,9 @@
 			<li><a href="https://leonzyang.github.io/posts/">博客</a></li>
 			<li><a href="https://leonzyang.github.io/datastruct/">数据结构</a></li>
 			<li><a href="https://leonzyang.github.io/algo/">算法</a></li>
-			<li><a href="https://leonzyang.github.io/about-hugo/">关于</a></li>
+			<li><a href="https://leonzyang.github.io/network/">网络</a></li>
+			<li><a href="https://leonzyang.github.io/interview/">面试</a></li>
+			<li><a href="https://leonzyang.github.io/about/">关于</a></li>
 		</ul>
 	</div>
 
@@ -119,6 +123,21 @@
             <span class="n">pre</span><span class="p">,</span> <span class="n">cur</span><span class="o">.</span><span class="n">next</span><span class="p">,</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span><span class="p">,</span> <span class="n">pre</span><span class="p">,</span> <span class="n">cur</span><span class="o">.</span><span class="n">next</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">pre</span>
+</code></pre></div><p>递归写法</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Node</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">recursion</span><span class="p">(</span><span class="n">prev</span><span class="p">:</span> <span class="n">Node</span><span class="p">,</span> <span class="n">cur</span><span class="p">:</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cur</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">prev</span>
+            <span class="n">nextNode</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">next</span>
+            <span class="n">cur</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">prev</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="n">cur</span>
+            <span class="k">return</span> <span class="n">recursion</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">nextNode</span><span class="p">)</span>
+
+        <span class="n">prev</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">root</span>
+
+        <span class="k">return</span> <span class="n">recursion</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">cur</span><span class="p">)</span>
 </code></pre></div><h4 id="链表合并">链表合并<a href="#链表合并" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
 <p>两个链表合并</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="n">linkA</span><span class="p">,</span> <span class="n">linkB</span><span class="p">:</span> <span class="n">Node</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>

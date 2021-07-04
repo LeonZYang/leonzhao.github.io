@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Go-深入理解HTTP">
+<meta itemprop="description" content="深入理解HTTP HTTP服务是我们经常用的一个服务，这里就带大家看下Go里面的HTTP源码
+Demo 启动HTTP服务很简单
+package main import ( &#34;io&#34; &#34;net/http&#34; ) func HanldeHello(w http.ResponseWriter, r *http.Request) { io.WriteString(w, &#34;ok\n&#34;) } func main() { http.HandleFunc(&#34;/&#34;, HanldeHello, http.MethodPost) http.ListenAndServe(&#34;0.0.0.0:8080&#34;, nil) } Server端 ServeMux ServeMux是一个HTTP请求多路复用
+type ServeMux struct { mu sync.RWMutex m map[string]muxEntry // 存储Path=&gt;muxEntry 	es []muxEntry // 按照muxEntry的path从最长到最短排序slice 	hosts bool // whether any patterns contain hostnames } type muxEntry struct { // type Handler interface { 	// ServeHTTP(ResponseWriter, *Request)  // } 	h Handler // handler 	pattern string // 路由路径 } Sever HTTP服务端结构器">
+<meta itemprop="datePublished" content="2021-06-27T09:26:06+08:00" />
+<meta itemprop="dateModified" content="2021-06-27T09:26:06+08:00" />
+<meta itemprop="wordCount" content="2879">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta property="og:title" content="Go-深入理解HTTP" />
+<meta property="og:description" content="深入理解HTTP HTTP服务是我们经常用的一个服务，这里就带大家看下Go里面的HTTP源码
+Demo 启动HTTP服务很简单
+package main import ( &#34;io&#34; &#34;net/http&#34; ) func HanldeHello(w http.ResponseWriter, r *http.Request) { io.WriteString(w, &#34;ok\n&#34;) } func main() { http.HandleFunc(&#34;/&#34;, HanldeHello, http.MethodPost) http.ListenAndServe(&#34;0.0.0.0:8080&#34;, nil) } Server端 ServeMux ServeMux是一个HTTP请求多路复用
+type ServeMux struct { mu sync.RWMutex m map[string]muxEntry // 存储Path=&gt;muxEntry 	es []muxEntry // 按照muxEntry的path从最长到最短排序slice 	hosts bool // whether any patterns contain hostnames } type muxEntry struct { // type Handler interface { 	// ServeHTTP(ResponseWriter, *Request)  // } 	h Handler // handler 	pattern string // 路由路径 } Sever HTTP服务端结构器" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://leonzyang.github.io/posts/gohttp/" />
+<meta property="article:published_time" content="2021-06-27T09:26:06+08:00" />
+<meta property="article:modified_time" content="2021-06-27T09:26:06+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Go-深入理解HTTP"/>
+<meta name="twitter:description" content="深入理解HTTP HTTP服务是我们经常用的一个服务，这里就带大家看下Go里面的HTTP源码
+Demo 启动HTTP服务很简单
+package main import ( &#34;io&#34; &#34;net/http&#34; ) func HanldeHello(w http.ResponseWriter, r *http.Request) { io.WriteString(w, &#34;ok\n&#34;) } func main() { http.HandleFunc(&#34;/&#34;, HanldeHello, http.MethodPost) http.ListenAndServe(&#34;0.0.0.0:8080&#34;, nil) } Server端 ServeMux ServeMux是一个HTTP请求多路复用
+type ServeMux struct { mu sync.RWMutex m map[string]muxEntry // 存储Path=&gt;muxEntry 	es []muxEntry // 按照muxEntry的path从最长到最短排序slice 	hosts bool // whether any patterns contain hostnames } type muxEntry struct { // type Handler interface { 	// ServeHTTP(ResponseWriter, *Request)  // } 	h Handler // handler 	pattern string // 路由路径 } Sever HTTP服务端结构器"/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Go-深入理解HTTP</title>
+	<link rel="stylesheet" href="https://leonzyang.github.io/css/style.min.eac77496566fd7d5768fd650ddb0b2b181ca6a2d7c5fdd6fe6b8ba4bf47e566f.css" integrity="sha256-6sd0llZv19V2j9ZQ3bCysYHKai18X91v5ri6S/R+Vm8=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://leonzyang.github.io">LeonZhao的小木屋</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://leonzyang.github.io/posts/">博客</a>
+				<a href="https://leonzyang.github.io/datastruct/">数据结构</a>
+				<a href="https://leonzyang.github.io/algo/">算法</a>
+				<a href="https://leonzyang.github.io/network/">网络</a>
+				<a href="https://leonzyang.github.io/interview/">面试</a>
+				<a href="https://leonzyang.github.io/about/">关于</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://github.com/" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://leonzyang.github.io/posts/">博客</a></li>
+			<li><a href="https://leonzyang.github.io/datastruct/">数据结构</a></li>
+			<li><a href="https://leonzyang.github.io/algo/">算法</a></li>
+			<li><a href="https://leonzyang.github.io/network/">网络</a></li>
+			<li><a href="https://leonzyang.github.io/interview/">面试</a></li>
+			<li><a href="https://leonzyang.github.io/about/">关于</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Jun 27, 2021</span></div>
+				<h1>Go-深入理解HTTP</h1>
+			</header>
+			<div class="content">
+				<h2 id="深入理解http">深入理解HTTP<a href="#深入理解http" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>HTTP服务是我们经常用的一个服务，这里就带大家看下Go里面的HTTP源码</p>
+<h3 id="demo">Demo<a href="#demo" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>启动HTTP服务很简单</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
+
+<span class="kn">import</span> <span class="p">(</span>
+	<span class="s">&#34;io&#34;</span>
+	<span class="s">&#34;net/http&#34;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span> <span class="nf">HanldeHello</span><span class="p">(</span><span class="nx">w</span> <span class="nx">http</span><span class="p">.</span><span class="nx">ResponseWriter</span><span class="p">,</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">http</span><span class="p">.</span><span class="nx">Request</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">io</span><span class="p">.</span><span class="nf">WriteString</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="s">&#34;ok\n&#34;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">http</span><span class="p">.</span><span class="nf">HandleFunc</span><span class="p">(</span><span class="s">&#34;/&#34;</span><span class="p">,</span> <span class="nx">HanldeHello</span><span class="p">,</span> <span class="nx">http</span><span class="p">.</span><span class="nx">MethodPost</span><span class="p">)</span>
+	<span class="nx">http</span><span class="p">.</span><span class="nf">ListenAndServe</span><span class="p">(</span><span class="s">&#34;0.0.0.0:8080&#34;</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+<span class="p">}</span>
+
+</code></pre></div><h3 id="server端">Server端<a href="#server端" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<h4 id="servemux">ServeMux<a href="#servemux" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>ServeMux是一个HTTP请求多路复用</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">ServeMux</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">mu</span>    <span class="nx">sync</span><span class="p">.</span><span class="nx">RWMutex</span>
+	<span class="nx">m</span>     <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">muxEntry</span>  <span class="c1">// 存储Path=&gt;muxEntry
+</span><span class="c1"></span>	<span class="nx">es</span>    <span class="p">[]</span><span class="nx">muxEntry</span> <span class="c1">// 按照muxEntry的path从最长到最短排序slice
+</span><span class="c1"></span>	<span class="nx">hosts</span> <span class="kt">bool</span>       <span class="c1">// whether any patterns contain hostnames
+</span><span class="c1"></span><span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">muxEntry</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="c1">// type Handler interface {
+</span><span class="c1"></span>	<span class="c1">//     ServeHTTP(ResponseWriter, *Request)
+</span><span class="c1"></span>    <span class="c1">// }
+</span><span class="c1"></span>	<span class="nx">h</span>       <span class="nx">Handler</span>  <span class="c1">// handler  
+</span><span class="c1"></span>	<span class="nx">pattern</span> <span class="kt">string</span>   <span class="c1">// 路由路径
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><h4 id="sever">Sever<a href="#sever" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>HTTP服务端结构器</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">Server</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">Addr</span>    <span class="kt">string</span>  <span class="c1">// TCP address to listen on, &#34;:http&#34; if empty
+</span><span class="c1"></span>	<span class="nx">Handler</span> <span class="nx">Handler</span> <span class="c1">// handler to invoke, http.DefaultServeMux if nil
+</span><span class="c1"></span>
+	<span class="c1">// TLSConfig optionally provides a TLS configuration for use
+</span><span class="c1"></span>	<span class="c1">// by ServeTLS and ListenAndServeTLS. Note that this value is
+</span><span class="c1"></span>	<span class="c1">// cloned by ServeTLS and ListenAndServeTLS, so it&#39;s not
+</span><span class="c1"></span>	<span class="c1">// possible to modify the configuration with methods like
+</span><span class="c1"></span>	<span class="c1">// tls.Config.SetSessionTicketKeys. To use
+</span><span class="c1"></span>	<span class="c1">// SetSessionTicketKeys, use Server.Serve with a TLS Listener
+</span><span class="c1"></span>	<span class="c1">// instead.
+</span><span class="c1"></span>	<span class="nx">TLSConfig</span> <span class="o">*</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span>
+
+	<span class="c1">// ReadTimeout is the maximum duration for reading the entire
+</span><span class="c1"></span>	<span class="c1">// request, including the body.
+</span><span class="c1"></span>	<span class="c1">//
+</span><span class="c1"></span>	<span class="c1">// Because ReadTimeout does not let Handlers make per-request
+</span><span class="c1"></span>	<span class="c1">// decisions on each request body&#39;s acceptable deadline or
+</span><span class="c1"></span>	<span class="c1">// upload rate, most users will prefer to use
+</span><span class="c1"></span>	<span class="c1">// ReadHeaderTimeout. It is valid to use them both.
+</span><span class="c1"></span>	<span class="nx">ReadTimeout</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
+
+	<span class="c1">// ReadHeaderTimeout is the amount of time allowed to read
+</span><span class="c1"></span>	<span class="c1">// request headers. The connection&#39;s read deadline is reset
+</span><span class="c1"></span>	<span class="c1">// after reading the headers and the Handler can decide what
+</span><span class="c1"></span>	<span class="c1">// is considered too slow for the body.
+</span><span class="c1"></span>	<span class="nx">ReadHeaderTimeout</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
+
+	<span class="c1">// WriteTimeout is the maximum duration before timing out
+</span><span class="c1"></span>	<span class="c1">// writes of the response. It is reset whenever a new
+</span><span class="c1"></span>	<span class="c1">// request&#39;s header is read. Like ReadTimeout, it does not
+</span><span class="c1"></span>	<span class="c1">// let Handlers make decisions on a per-request basis.
+</span><span class="c1"></span>	<span class="nx">WriteTimeout</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
+
+	<span class="c1">// IdleTimeout is the maximum amount of time to wait for the
+</span><span class="c1"></span>	<span class="c1">// next request when keep-alives are enabled. If IdleTimeout
+</span><span class="c1"></span>	<span class="c1">// is zero, the value of ReadTimeout is used. If both are
+</span><span class="c1"></span>	<span class="c1">// zero, ReadHeaderTimeout is used.
+</span><span class="c1"></span>	<span class="nx">IdleTimeout</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>
+
+	<span class="c1">// MaxHeaderBytes controls the maximum number of bytes the
+</span><span class="c1"></span>	<span class="c1">// server will read parsing the request header&#39;s keys and
+</span><span class="c1"></span>	<span class="c1">// values, including the request line. It does not limit the
+</span><span class="c1"></span>	<span class="c1">// size of the request body.
+</span><span class="c1"></span>	<span class="c1">// If zero, DefaultMaxHeaderBytes is used.
+</span><span class="c1"></span>	<span class="nx">MaxHeaderBytes</span> <span class="kt">int</span>
+
+	<span class="c1">// TLSNextProto optionally specifies a function to take over
+</span><span class="c1"></span>	<span class="c1">// ownership of the provided TLS connection when an NPN/ALPN
+</span><span class="c1"></span>	<span class="c1">// protocol upgrade has occurred. The map key is the protocol
+</span><span class="c1"></span>	<span class="c1">// name negotiated. The Handler argument should be used to
+</span><span class="c1"></span>	<span class="c1">// handle HTTP requests and will initialize the Request&#39;s TLS
+</span><span class="c1"></span>	<span class="c1">// and RemoteAddr if not already set. The connection is
+</span><span class="c1"></span>	<span class="c1">// automatically closed when the function returns.
+</span><span class="c1"></span>	<span class="c1">// If TLSNextProto is not nil, HTTP/2 support is not enabled
+</span><span class="c1"></span>	<span class="c1">// automatically.
+</span><span class="c1"></span>	<span class="nx">TLSNextProto</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kd">func</span><span class="p">(</span><span class="o">*</span><span class="nx">Server</span><span class="p">,</span> <span class="o">*</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Conn</span><span class="p">,</span> <span class="nx">Handler</span><span class="p">)</span>
+
+	<span class="c1">// ConnState specifies an optional callback function that is
+</span><span class="c1"></span>	<span class="c1">// called when a client connection changes state. See the
+</span><span class="c1"></span>	<span class="c1">// ConnState type and associated constants for details.
+</span><span class="c1"></span>	<span class="nx">ConnState</span> <span class="kd">func</span><span class="p">(</span><span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">,</span> <span class="nx">ConnState</span><span class="p">)</span>
+
+	<span class="c1">// ErrorLog specifies an optional logger for errors accepting
+</span><span class="c1"></span>	<span class="c1">// connections, unexpected behavior from handlers, and
+</span><span class="c1"></span>	<span class="c1">// underlying FileSystem errors.
+</span><span class="c1"></span>	<span class="c1">// If nil, logging is done via the log package&#39;s standard logger.
+</span><span class="c1"></span>	<span class="nx">ErrorLog</span> <span class="o">*</span><span class="nx">log</span><span class="p">.</span><span class="nx">Logger</span>
+
+	<span class="nx">disableKeepAlives</span> <span class="kt">int32</span>     <span class="c1">// accessed atomically.
+</span><span class="c1"></span>	<span class="nx">inShutdown</span>        <span class="kt">int32</span>     <span class="c1">// accessed atomically (non-zero means we&#39;re in Shutdown)
+</span><span class="c1"></span>	<span class="nx">nextProtoOnce</span>     <span class="nx">sync</span><span class="p">.</span><span class="nx">Once</span> <span class="c1">// guards setupHTTP2_* init
+</span><span class="c1"></span>	<span class="nx">nextProtoErr</span>      <span class="kt">error</span>     <span class="c1">// result of http2.ConfigureServer if used
+</span><span class="c1"></span>
+	<span class="nx">mu</span>         <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+	<span class="nx">listeners</span>  <span class="kd">map</span><span class="p">[</span><span class="o">*</span><span class="nx">net</span><span class="p">.</span><span class="nx">Listener</span><span class="p">]</span><span class="kd">struct</span><span class="p">{}</span>
+	<span class="nx">activeConn</span> <span class="kd">map</span><span class="p">[</span><span class="o">*</span><span class="nx">conn</span><span class="p">]</span><span class="kd">struct</span><span class="p">{}</span>   <span class="c1">// 活动的连接
+</span><span class="c1"></span>	<span class="nx">doneChan</span>   <span class="kd">chan</span> <span class="kd">struct</span><span class="p">{}</span>
+	<span class="nx">onShutdown</span> <span class="p">[]</span><span class="kd">func</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="handle">Handle<a href="#handle" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>我们可以使用Handle或者HandleFunc进行Handle注册，下面我们讲下Handle注册的过程</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">mux</span> <span class="o">*</span><span class="nx">ServeMux</span><span class="p">)</span> <span class="nf">Handle</span><span class="p">(</span><span class="nx">pattern</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">handler</span> <span class="nx">Handler</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">mux</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nf">Lock</span><span class="p">()</span>
+	<span class="k">defer</span> <span class="nx">mux</span><span class="p">.</span><span class="nx">mu</span><span class="p">.</span><span class="nf">Unlock</span><span class="p">()</span>
+
+    <span class="c1">// 检查参数
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">pattern</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;http: invalid pattern&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">handler</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;http: nil handler&#34;</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="c1">// 检查是否存在
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">exist</span> <span class="o">:=</span> <span class="nx">mux</span><span class="p">.</span><span class="nx">m</span><span class="p">[</span><span class="nx">pattern</span><span class="p">];</span> <span class="nx">exist</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;http: multiple registrations for &#34;</span> <span class="o">+</span> <span class="nx">pattern</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nx">mux</span><span class="p">.</span><span class="nx">m</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nx">mux</span><span class="p">.</span><span class="nx">m</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="nx">muxEntry</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">e</span> <span class="o">:=</span> <span class="nx">muxEntry</span><span class="p">{</span><span class="nx">h</span><span class="p">:</span> <span class="nx">handler</span><span class="p">,</span> <span class="nx">pattern</span><span class="p">:</span> <span class="nx">pattern</span><span class="p">}</span>
+    <span class="nx">mux</span><span class="p">.</span><span class="nx">m</span><span class="p">[</span><span class="nx">pattern</span><span class="p">]</span> <span class="p">=</span> <span class="nx">e</span>
+    <span class="c1">// 如果pattern的最后一位是/，将其加入mux.es
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">pattern</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="nx">pattern</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;/&#39;</span> <span class="p">{</span>
+		<span class="nx">mux</span><span class="p">.</span><span class="nx">es</span> <span class="p">=</span> <span class="nf">appendSorted</span><span class="p">(</span><span class="nx">mux</span><span class="p">.</span><span class="nx">es</span><span class="p">,</span> <span class="nx">e</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nx">pattern</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">&#39;/&#39;</span> <span class="p">{</span>
+		<span class="nx">mux</span><span class="p">.</span><span class="nx">hosts</span> <span class="p">=</span> <span class="kc">true</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><h5 id="appendsorted">appendSorted<a href="#appendsorted" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h5>
+<p>es是个按照pattern长度排序的Slice，然后利用二分查找寻找e相对的位置，并插入其中</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">appendSorted</span><span class="p">(</span><span class="nx">es</span> <span class="p">[]</span><span class="nx">muxEntry</span><span class="p">,</span> <span class="nx">e</span> <span class="nx">muxEntry</span><span class="p">)</span> <span class="p">[]</span><span class="nx">muxEntry</span> <span class="p">{</span>
+    <span class="nx">n</span> <span class="o">:=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">es</span><span class="p">)</span>
+    <span class="c1">// 二分查找
+</span><span class="c1"></span>	<span class="nx">i</span> <span class="o">:=</span> <span class="nx">sort</span><span class="p">.</span><span class="nf">Search</span><span class="p">(</span><span class="nx">n</span><span class="p">,</span> <span class="kd">func</span><span class="p">(</span><span class="nx">i</span> <span class="kt">int</span><span class="p">)</span> <span class="kt">bool</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nx">es</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">pattern</span><span class="p">)</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">pattern</span><span class="p">)</span>
+	<span class="p">})</span>
+	<span class="k">if</span> <span class="nx">i</span> <span class="o">==</span> <span class="nx">n</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nb">append</span><span class="p">(</span><span class="nx">es</span><span class="p">,</span> <span class="nx">e</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="c1">// we now know that i points at where we want to insert
+</span><span class="c1"></span>	<span class="nx">es</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">es</span><span class="p">,</span> <span class="nx">muxEntry</span><span class="p">{})</span> <span class="c1">// try to grow the slice in place, any entry works.
+</span><span class="c1"></span>	<span class="nb">copy</span><span class="p">(</span><span class="nx">es</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:],</span> <span class="nx">es</span><span class="p">[</span><span class="nx">i</span><span class="p">:])</span>      <span class="c1">// Move shorter entries down
+</span><span class="c1"></span>	<span class="nx">es</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="p">=</span> <span class="nx">e</span>
+	<span class="k">return</span> <span class="nx">es</span>
+<span class="p">}</span>
+</code></pre></div><p>上面就是Handle注册的过程，下面我们看下HTTP服务启动以及如何处理请求</p>
+<h4 id="listenandserve">ListenAndServe<a href="#listenandserve" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>ListenAndServe启动了一个HTTP服务</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">srv</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nf">ListenAndServe</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="c1">// 判断状态
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">srv</span><span class="p">.</span><span class="nf">shuttingDown</span><span class="p">()</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">ErrServerClosed</span>
+	<span class="p">}</span>
+	<span class="nx">addr</span> <span class="o">:=</span> <span class="nx">srv</span><span class="p">.</span><span class="nx">Addr</span>
+	<span class="k">if</span> <span class="nx">addr</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+		<span class="nx">addr</span> <span class="p">=</span> <span class="s">&#34;:http&#34;</span>
+	<span class="p">}</span>
+	<span class="nx">ln</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">net</span><span class="p">.</span><span class="nf">Listen</span><span class="p">(</span><span class="s">&#34;tcp&#34;</span><span class="p">,</span> <span class="nx">addr</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">err</span>
+    <span class="p">}</span>
+    <span class="c1">// tcpKeepAliveListener会在Accept连接后，设置KeepAlive，周期是3分钟
+</span><span class="c1"></span>	<span class="k">return</span> <span class="nx">srv</span><span class="p">.</span><span class="nf">Serve</span><span class="p">(</span><span class="nx">tcpKeepAliveListener</span><span class="p">{</span><span class="nx">ln</span><span class="p">.(</span><span class="o">*</span><span class="nx">net</span><span class="p">.</span><span class="nx">TCPListener</span><span class="p">)})</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="serve">Serve<a href="#serve" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>Serve 接收请求，并且为每一个请求启动一个Goroutine去处理</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">srv</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nf">Serve</span><span class="p">(</span><span class="nx">l</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Listener</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">fn</span> <span class="o">:=</span> <span class="nx">testHookServerServe</span><span class="p">;</span> <span class="nx">fn</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="nf">fn</span><span class="p">(</span><span class="nx">srv</span><span class="p">,</span> <span class="nx">l</span><span class="p">)</span> <span class="c1">// call hook with unwrapped listener
+</span><span class="c1"></span>	<span class="p">}</span>
+
+	<span class="nx">l</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">onceCloseListener</span><span class="p">{</span><span class="nx">Listener</span><span class="p">:</span> <span class="nx">l</span><span class="p">}</span>
+	<span class="k">defer</span> <span class="nx">l</span><span class="p">.</span><span class="nf">Close</span><span class="p">()</span>
+
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">srv</span><span class="p">.</span><span class="nf">setupHTTP2_Serve</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="p">!</span><span class="nx">srv</span><span class="p">.</span><span class="nf">trackListener</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">l</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">ErrServerClosed</span>
+	<span class="p">}</span>
+	<span class="k">defer</span> <span class="nx">srv</span><span class="p">.</span><span class="nf">trackListener</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">l</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+
+    <span class="c1">// accept失败后的休眠时间
+</span><span class="c1"></span>	<span class="kd">var</span> <span class="nx">tempDelay</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span>     <span class="c1">// how long to sleep on accept failure
+</span><span class="c1"></span>	<span class="nx">baseCtx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">Background</span><span class="p">()</span> <span class="c1">// base is always background, per Issue 16220
+</span><span class="c1"></span>	<span class="nx">ctx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithValue</span><span class="p">(</span><span class="nx">baseCtx</span><span class="p">,</span> <span class="nx">ServerContextKey</span><span class="p">,</span> <span class="nx">srv</span><span class="p">)</span>
+	<span class="k">for</span> <span class="p">{</span>
+		<span class="nx">rw</span><span class="p">,</span> <span class="nx">e</span> <span class="o">:=</span> <span class="nx">l</span><span class="p">.</span><span class="nf">Accept</span><span class="p">()</span>
+		<span class="k">if</span> <span class="nx">e</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="k">select</span> <span class="p">{</span>
+			<span class="k">case</span> <span class="o">&lt;-</span><span class="nx">srv</span><span class="p">.</span><span class="nf">getDoneChan</span><span class="p">():</span>
+				<span class="k">return</span> <span class="nx">ErrServerClosed</span>
+			<span class="k">default</span><span class="p">:</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="nx">ne</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">e</span><span class="p">.(</span><span class="nx">net</span><span class="p">.</span><span class="nx">Error</span><span class="p">);</span> <span class="nx">ok</span> <span class="o">&amp;&amp;</span> <span class="nx">ne</span><span class="p">.</span><span class="nf">Temporary</span><span class="p">()</span> <span class="p">{</span>
+                <span class="c1">// 失败后的休眠处理
+</span><span class="c1"></span>				<span class="k">if</span> <span class="nx">tempDelay</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+					<span class="nx">tempDelay</span> <span class="p">=</span> <span class="mi">5</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Millisecond</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="nx">tempDelay</span> <span class="o">*=</span> <span class="mi">2</span>
+				<span class="p">}</span>
+				<span class="k">if</span> <span class="nx">max</span> <span class="o">:=</span> <span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">;</span> <span class="nx">tempDelay</span> <span class="p">&gt;</span> <span class="nx">max</span> <span class="p">{</span>
+					<span class="nx">tempDelay</span> <span class="p">=</span> <span class="nx">max</span>
+				<span class="p">}</span>
+				<span class="nx">srv</span><span class="p">.</span><span class="nf">logf</span><span class="p">(</span><span class="s">&#34;http: Accept error: %v; retrying in %v&#34;</span><span class="p">,</span> <span class="nx">e</span><span class="p">,</span> <span class="nx">tempDelay</span><span class="p">)</span>
+				<span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">tempDelay</span><span class="p">)</span>
+				<span class="k">continue</span>
+			<span class="p">}</span>
+			<span class="k">return</span> <span class="nx">e</span>
+        <span class="p">}</span>
+        <span class="c1">// 重置休眠时间
+</span><span class="c1"></span>        <span class="nx">tempDelay</span> <span class="p">=</span> <span class="mi">0</span>
+        <span class="c1">// 新建conn
+</span><span class="c1"></span>		<span class="nx">c</span> <span class="o">:=</span> <span class="nx">srv</span><span class="p">.</span><span class="nf">newConn</span><span class="p">(</span><span class="nx">rw</span><span class="p">)</span>
+        <span class="nx">c</span><span class="p">.</span><span class="nf">setState</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">,</span> <span class="nx">StateNew</span><span class="p">)</span> <span class="c1">// before Serve can return
+</span><span class="c1"></span>        <span class="c1">// 处理请求
+</span><span class="c1"></span>		<span class="k">go</span> <span class="nx">c</span><span class="p">.</span><span class="nf">serve</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="newconn">newConn<a href="#newconn" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">srv</span> <span class="o">*</span><span class="nx">Server</span><span class="p">)</span> <span class="nf">newConn</span><span class="p">(</span><span class="nx">rwc</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span><span class="p">)</span> <span class="o">*</span><span class="nx">conn</span> <span class="p">{</span>
+	<span class="nx">c</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">conn</span><span class="p">{</span>
+		<span class="nx">server</span><span class="p">:</span> <span class="nx">srv</span><span class="p">,</span>
+		<span class="nx">rwc</span><span class="p">:</span>    <span class="nx">rwc</span><span class="p">,</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">debugServerConnections</span> <span class="p">{</span>
+		<span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span> <span class="p">=</span> <span class="nf">newLoggingConn</span><span class="p">(</span><span class="s">&#34;server&#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">c</span>
+<span class="p">}</span>
+</code></pre></div><h5 id="conn">conn<a href="#conn" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h5>
+<p>conn是服务端的HTTP连接</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">conn</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="c1">// server is the server on which the connection arrived.
+</span><span class="c1"></span>	<span class="c1">// Immutable; never nil.
+</span><span class="c1"></span>	<span class="nx">server</span> <span class="o">*</span><span class="nx">Server</span>
+
+	<span class="c1">// cancelCtx cancels the connection-level context.
+</span><span class="c1"></span>	<span class="nx">cancelCtx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">CancelFunc</span>
+
+	<span class="c1">// rwc is the underlying network connection.
+</span><span class="c1"></span>	<span class="c1">// This is never wrapped by other types and is the value given out
+</span><span class="c1"></span>	<span class="c1">// to CloseNotifier callers. It is usually of type *net.TCPConn or
+</span><span class="c1"></span>	<span class="c1">// *tls.Conn.
+</span><span class="c1"></span>	<span class="nx">rwc</span> <span class="nx">net</span><span class="p">.</span><span class="nx">Conn</span>
+
+	<span class="c1">// remoteAddr is rwc.RemoteAddr().String(). It is not populated synchronously
+</span><span class="c1"></span>	<span class="c1">// inside the Listener&#39;s Accept goroutine, as some implementations block.
+</span><span class="c1"></span>	<span class="c1">// It is populated immediately inside the (*conn).serve goroutine.
+</span><span class="c1"></span>	<span class="c1">// This is the value of a Handler&#39;s (*Request).RemoteAddr.
+</span><span class="c1"></span>	<span class="nx">remoteAddr</span> <span class="kt">string</span>
+
+	<span class="c1">// tlsState is the TLS connection state when using TLS.
+</span><span class="c1"></span>	<span class="c1">// nil means not TLS.
+</span><span class="c1"></span>	<span class="nx">tlsState</span> <span class="o">*</span><span class="nx">tls</span><span class="p">.</span><span class="nx">ConnectionState</span>
+
+	<span class="c1">// werr is set to the first write error to rwc.
+</span><span class="c1"></span>	<span class="c1">// It is set via checkConnErrorWriter{w}, where bufw writes.
+</span><span class="c1"></span>	<span class="nx">werr</span> <span class="kt">error</span>
+
+	<span class="c1">// r is bufr&#39;s read source. It&#39;s a wrapper around rwc that provides
+</span><span class="c1"></span>	<span class="c1">// io.LimitedReader-style limiting (while reading request headers)
+</span><span class="c1"></span>	<span class="c1">// and functionality to support CloseNotifier. See *connReader docs.
+</span><span class="c1"></span>	<span class="nx">r</span> <span class="o">*</span><span class="nx">connReader</span>
+
+	<span class="c1">// bufr reads from r.
+</span><span class="c1"></span>	<span class="nx">bufr</span> <span class="o">*</span><span class="nx">bufio</span><span class="p">.</span><span class="nx">Reader</span>
+
+	<span class="c1">// bufw writes to checkConnErrorWriter{c}, which populates werr on error.
+</span><span class="c1"></span>	<span class="nx">bufw</span> <span class="o">*</span><span class="nx">bufio</span><span class="p">.</span><span class="nx">Writer</span>
+
+	<span class="c1">// lastMethod is the method of the most recent request
+</span><span class="c1"></span>	<span class="c1">// on this connection, if any.
+</span><span class="c1"></span>	<span class="nx">lastMethod</span> <span class="kt">string</span>
+
+	<span class="nx">curReq</span> <span class="nx">atomic</span><span class="p">.</span><span class="nx">Value</span> <span class="c1">// of *response (which has a Request in it)
+</span><span class="c1"></span>
+	<span class="nx">curState</span> <span class="kd">struct</span><span class="p">{</span> <span class="nx">atomic</span> <span class="kt">uint64</span> <span class="p">}</span> <span class="c1">// packed (unixtime&lt;&lt;8|uint8(ConnState))
+</span><span class="c1"></span>
+	<span class="c1">// mu guards hijackedv
+</span><span class="c1"></span>	<span class="nx">mu</span> <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span>
+
+	<span class="c1">// hijackedv is whether this connection has been hijacked
+</span><span class="c1"></span>	<span class="c1">// by a Handler with the Hijacker interface.
+</span><span class="c1"></span>	<span class="c1">// It is guarded by mu.
+</span><span class="c1"></span>	<span class="nx">hijackedv</span> <span class="kt">bool</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="serve-1">serve<a href="#serve-1" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>处理这个连接</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">conn</span><span class="p">)</span> <span class="nf">serve</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">{</span>
+	<span class="c1">// 省略...
+</span><span class="c1"></span>
+	<span class="c1">// HTTP/1.x from here on.
+</span><span class="c1"></span>
+	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancelCtx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithCancel</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+	<span class="nx">c</span><span class="p">.</span><span class="nx">cancelCtx</span> <span class="p">=</span> <span class="nx">cancelCtx</span>
+	<span class="k">defer</span> <span class="nf">cancelCtx</span><span class="p">()</span>
+
+	<span class="nx">c</span><span class="p">.</span><span class="nx">r</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">connReader</span><span class="p">{</span><span class="nx">conn</span><span class="p">:</span> <span class="nx">c</span><span class="p">}</span>
+	<span class="nx">c</span><span class="p">.</span><span class="nx">bufr</span> <span class="p">=</span> <span class="nf">newBufioReader</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">r</span><span class="p">)</span>
+	<span class="nx">c</span><span class="p">.</span><span class="nx">bufw</span> <span class="p">=</span> <span class="nf">newBufioWriterSize</span><span class="p">(</span><span class="nx">checkConnErrorWriter</span><span class="p">{</span><span class="nx">c</span><span class="p">},</span> <span class="mi">4</span><span class="o">&lt;&lt;</span><span class="mi">10</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="p">{</span>
+        <span class="c1">// 从连接里读取请求
+</span><span class="c1"></span>		<span class="nx">w</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nf">readRequest</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nx">r</span><span class="p">.</span><span class="nx">remain</span> <span class="o">!=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nf">initialReadLimitSize</span><span class="p">()</span> <span class="p">{</span>
+			<span class="c1">// If we read any bytes off the wire, we&#39;re active.
+</span><span class="c1"></span>			<span class="nx">c</span><span class="p">.</span><span class="nf">setState</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">,</span> <span class="nx">StateActive</span><span class="p">)</span>
+		<span class="p">}</span>
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="kd">const</span> <span class="nx">errorHeaders</span> <span class="p">=</span> <span class="s">&#34;\r\nContent-Type: text/plain; charset=utf-8\r\nConnection: close\r\n\r\n&#34;</span>
+
+			<span class="k">if</span> <span class="nx">err</span> <span class="o">==</span> <span class="nx">errTooLarge</span> <span class="p">{</span>
+				<span class="c1">// Their HTTP client may or may not be
+</span><span class="c1"></span>				<span class="c1">// able to read this if we&#39;re
+</span><span class="c1"></span>				<span class="c1">// responding to them and hanging up
+</span><span class="c1"></span>				<span class="c1">// while they&#39;re still writing their
+</span><span class="c1"></span>				<span class="c1">// request. Undefined behavior.
+</span><span class="c1"></span>				<span class="kd">const</span> <span class="nx">publicErr</span> <span class="p">=</span> <span class="s">&#34;431 Request Header Fields Too Large&#34;</span>
+				<span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">,</span> <span class="s">&#34;HTTP/1.1 &#34;</span><span class="o">+</span><span class="nx">publicErr</span><span class="o">+</span><span class="nx">errorHeaders</span><span class="o">+</span><span class="nx">publicErr</span><span class="p">)</span>
+				<span class="nx">c</span><span class="p">.</span><span class="nf">closeWriteAndWait</span><span class="p">()</span>
+				<span class="k">return</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="nf">isCommonNetReadError</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">return</span> <span class="c1">// don&#39;t reply
+</span><span class="c1"></span>			<span class="p">}</span>
+
+			<span class="nx">publicErr</span> <span class="o">:=</span> <span class="s">&#34;400 Bad Request&#34;</span>
+			<span class="k">if</span> <span class="nx">v</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">err</span><span class="p">.(</span><span class="nx">badRequestError</span><span class="p">);</span> <span class="nx">ok</span> <span class="p">{</span>
+				<span class="nx">publicErr</span> <span class="p">=</span> <span class="nx">publicErr</span> <span class="o">+</span> <span class="s">&#34;: &#34;</span> <span class="o">+</span> <span class="nb">string</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span>
+			<span class="p">}</span>
+
+			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Fprintf</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">,</span> <span class="s">&#34;HTTP/1.1 &#34;</span><span class="o">+</span><span class="nx">publicErr</span><span class="o">+</span><span class="nx">errorHeaders</span><span class="o">+</span><span class="nx">publicErr</span><span class="p">)</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+
+		<span class="c1">// Expect 100 Continue support
+</span><span class="c1"></span>		<span class="nx">req</span> <span class="o">:=</span> <span class="nx">w</span><span class="p">.</span><span class="nx">req</span>
+		<span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nf">expectsContinue</span><span class="p">()</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nf">ProtoAtLeast</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">req</span><span class="p">.</span><span class="nx">ContentLength</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
+				<span class="c1">// Wrap the Body reader with one that replies on the connection
+</span><span class="c1"></span>				<span class="nx">req</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">expectContinueReader</span><span class="p">{</span><span class="nx">readCloser</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Body</span><span class="p">,</span> <span class="nx">resp</span><span class="p">:</span> <span class="nx">w</span><span class="p">}</span>
+			<span class="p">}</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s">&#34;Expect&#34;</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+			<span class="nx">w</span><span class="p">.</span><span class="nf">sendExpectationFailed</span><span class="p">()</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+
+		<span class="nx">c</span><span class="p">.</span><span class="nx">curReq</span><span class="p">.</span><span class="nf">Store</span><span class="p">(</span><span class="nx">w</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="nf">requestBodyRemains</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Body</span><span class="p">)</span> <span class="p">{</span>
+			<span class="nf">registerOnHitEOF</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Body</span><span class="p">,</span> <span class="nx">w</span><span class="p">.</span><span class="nx">conn</span><span class="p">.</span><span class="nx">r</span><span class="p">.</span><span class="nx">startBackgroundRead</span><span class="p">)</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="nx">w</span><span class="p">.</span><span class="nx">conn</span><span class="p">.</span><span class="nx">r</span><span class="p">.</span><span class="nf">startBackgroundRead</span><span class="p">()</span>
+		<span class="p">}</span>
+
+		<span class="c1">// HTTP cannot have multiple simultaneous active requests.[*]
+</span><span class="c1"></span>		<span class="c1">// Until the server replies to this request, it can&#39;t read another,
+</span><span class="c1"></span>		<span class="c1">// so we might as well run the handler in this goroutine.
+</span><span class="c1"></span>		<span class="c1">// [*] Not strictly true: HTTP pipelining. We could let them all process
+</span><span class="c1"></span>		<span class="c1">// in parallel even if their responses need to be serialized.
+</span><span class="c1"></span>		<span class="c1">// But we&#39;re not going to implement HTTP pipelining because it
+</span><span class="c1"></span>        <span class="c1">// was never deployed in the wild and the answer is HTTP/2.
+</span><span class="c1"></span>        <span class="c1">// 由于HTTP/1.x 一个连接只能处理一个请求，也就是说serverHandler只有在执行完回复，这个连接才能被复用
+</span><span class="c1"></span>        <span class="c1">// serverHandler是否能用Goroutine来运行，这个也不完全可行，这里并不打算实现HTTP pipelining，所以如果有需求可以选择HTTP/2
+</span><span class="c1"></span>
+        <span class="c1">// 调用ServeHTTP去执行Handler
+</span><span class="c1"></span>		<span class="nx">serverHandler</span><span class="p">{</span><span class="nx">c</span><span class="p">.</span><span class="nx">server</span><span class="p">}.</span><span class="nf">ServeHTTP</span><span class="p">(</span><span class="nx">w</span><span class="p">,</span> <span class="nx">w</span><span class="p">.</span><span class="nx">req</span><span class="p">)</span>
+		<span class="nx">w</span><span class="p">.</span><span class="nf">cancelCtx</span><span class="p">()</span>
+		<span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nf">hijacked</span><span class="p">()</span> <span class="p">{</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+        <span class="nx">w</span><span class="p">.</span><span class="nf">finishRequest</span><span class="p">()</span>
+        <span class="c1">// 判断连接是重用
+</span><span class="c1"></span>		<span class="k">if</span> <span class="p">!</span><span class="nx">w</span><span class="p">.</span><span class="nf">shouldReuseConnection</span><span class="p">()</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="nx">w</span><span class="p">.</span><span class="nx">requestBodyLimitHit</span> <span class="o">||</span> <span class="nx">w</span><span class="p">.</span><span class="nf">closedRequestBodyEarly</span><span class="p">()</span> <span class="p">{</span>
+				<span class="nx">c</span><span class="p">.</span><span class="nf">closeWriteAndWait</span><span class="p">()</span>
+			<span class="p">}</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+		<span class="nx">c</span><span class="p">.</span><span class="nf">setState</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">,</span> <span class="nx">StateIdle</span><span class="p">)</span>
+		<span class="nx">c</span><span class="p">.</span><span class="nx">curReq</span><span class="p">.</span><span class="nf">Store</span><span class="p">((</span><span class="o">*</span><span class="nx">response</span><span class="p">)(</span><span class="kc">nil</span><span class="p">))</span>
+
+		<span class="k">if</span> <span class="p">!</span><span class="nx">w</span><span class="p">.</span><span class="nx">conn</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nf">doKeepAlives</span><span class="p">()</span> <span class="p">{</span>
+			<span class="c1">// We&#39;re in shutdown mode. We might&#39;ve replied
+</span><span class="c1"></span>			<span class="c1">// to the user without &#34;Connection: close&#34; and
+</span><span class="c1"></span>			<span class="c1">// they might think they can send another
+</span><span class="c1"></span>			<span class="c1">// request, but such is life with HTTP/1.1.
+</span><span class="c1"></span>			<span class="k">return</span>
+		<span class="p">}</span>
+
+		<span class="k">if</span> <span class="nx">d</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nf">idleTimeout</span><span class="p">();</span> <span class="nx">d</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
+			<span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">.</span><span class="nf">SetReadDeadline</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Add</span><span class="p">(</span><span class="nx">d</span><span class="p">))</span>
+			<span class="k">if</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">bufr</span><span class="p">.</span><span class="nf">Peek</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+				<span class="k">return</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">.</span><span class="nf">SetReadDeadline</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span><span class="p">{})</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div><h4 id="readrequest">readRequest<a href="#readrequest" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>从连接中读取下一个请求</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">c</span> <span class="o">*</span><span class="nx">conn</span><span class="p">)</span> <span class="nf">readRequest</span><span class="p">(</span><span class="nx">ctx</span> <span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">)</span> <span class="p">(</span><span class="nx">w</span> <span class="o">*</span><span class="nx">response</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nf">hijacked</span><span class="p">()</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">ErrHijacked</span>
+	<span class="p">}</span>
+
+	<span class="kd">var</span> <span class="p">(</span>
+		<span class="nx">wholeReqDeadline</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span> <span class="c1">// or zero if none
+</span><span class="c1"></span>		<span class="nx">hdrDeadline</span>      <span class="nx">time</span><span class="p">.</span><span class="nx">Time</span> <span class="c1">// or zero if none
+</span><span class="c1"></span>    <span class="p">)</span>
+    <span class="c1">// 设置读取超时时间
+</span><span class="c1"></span>	<span class="nx">t0</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">d</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nf">readHeaderTimeout</span><span class="p">();</span> <span class="nx">d</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="nx">hdrDeadline</span> <span class="p">=</span> <span class="nx">t0</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">d</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">ReadTimeout</span><span class="p">;</span> <span class="nx">d</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="nx">wholeReqDeadline</span> <span class="p">=</span> <span class="nx">t0</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">.</span><span class="nf">SetReadDeadline</span><span class="p">(</span><span class="nx">hdrDeadline</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">d</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nx">WriteTimeout</span><span class="p">;</span> <span class="nx">d</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+			<span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">.</span><span class="nf">SetWriteDeadline</span><span class="p">(</span><span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Add</span><span class="p">(</span><span class="nx">d</span><span class="p">))</span>
+		<span class="p">}()</span>
+	<span class="p">}</span>
+
+	<span class="nx">c</span><span class="p">.</span><span class="nx">r</span><span class="p">.</span><span class="nf">setReadLimit</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">server</span><span class="p">.</span><span class="nf">initialReadLimitSize</span><span class="p">())</span>
+	<span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nx">lastMethod</span> <span class="o">==</span> <span class="s">&#34;POST&#34;</span> <span class="p">{</span>
+		<span class="c1">// RFC 7230 section 3 tolerance for old buggy clients.
+</span><span class="c1"></span>		<span class="nx">peek</span><span class="p">,</span> <span class="nx">_</span> <span class="o">:=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">bufr</span><span class="p">.</span><span class="nf">Peek</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="c1">// ReadRequest will get err below
+</span><span class="c1"></span>		<span class="nx">c</span><span class="p">.</span><span class="nx">bufr</span><span class="p">.</span><span class="nf">Discard</span><span class="p">(</span><span class="nf">numLeadingCRorLF</span><span class="p">(</span><span class="nx">peek</span><span class="p">))</span>
+	<span class="p">}</span>
+	<span class="nx">req</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">readRequest</span><span class="p">(</span><span class="nx">c</span><span class="p">.</span><span class="nx">bufr</span><span class="p">,</span> <span class="nx">keepHostHeader</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="nx">c</span><span class="p">.</span><span class="nx">r</span><span class="p">.</span><span class="nf">hitReadLimit</span><span class="p">()</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errTooLarge</span>
+		<span class="p">}</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="p">!</span><span class="nf">http1ServerSupportsRequest</span><span class="p">(</span><span class="nx">req</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nf">badRequestError</span><span class="p">(</span><span class="s">&#34;unsupported protocol version&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">c</span><span class="p">.</span><span class="nx">lastMethod</span> <span class="p">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Method</span>
+	<span class="nx">c</span><span class="p">.</span><span class="nx">r</span><span class="p">.</span><span class="nf">setInfiniteReadLimit</span><span class="p">()</span>
+
+	<span class="nx">hosts</span><span class="p">,</span> <span class="nx">haveHost</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">[</span><span class="s">&#34;Host&#34;</span><span class="p">]</span>
+	<span class="nx">isH2Upgrade</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nf">isH2Upgrade</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nf">ProtoAtLeast</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(!</span><span class="nx">haveHost</span> <span class="o">||</span> <span class="nb">len</span><span class="p">(</span><span class="nx">hosts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">!</span><span class="nx">isH2Upgrade</span> <span class="o">&amp;&amp;</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Method</span> <span class="o">!=</span> <span class="s">&#34;CONNECT&#34;</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nf">badRequestError</span><span class="p">(</span><span class="s">&#34;missing required Host header&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">hosts</span><span class="p">)</span> <span class="p">&gt;</span> <span class="mi">1</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nf">badRequestError</span><span class="p">(</span><span class="s">&#34;too many Host headers&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">hosts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="p">!</span><span class="nx">httpguts</span><span class="p">.</span><span class="nf">ValidHostHeader</span><span class="p">(</span><span class="nx">hosts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nf">badRequestError</span><span class="p">(</span><span class="s">&#34;malformed Host header&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">vv</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Header</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">!</span><span class="nx">httpguts</span><span class="p">.</span><span class="nf">ValidHeaderFieldName</span><span class="p">(</span><span class="nx">k</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nf">badRequestError</span><span class="p">(</span><span class="s">&#34;invalid header name&#34;</span><span class="p">)</span>
+		<span class="p">}</span>
+		<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">v</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">vv</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="p">!</span><span class="nx">httpguts</span><span class="p">.</span><span class="nf">ValidHeaderFieldValue</span><span class="p">(</span><span class="nx">v</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nf">badRequestError</span><span class="p">(</span><span class="s">&#34;invalid header value&#34;</span><span class="p">)</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+	<span class="nb">delete</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">,</span> <span class="s">&#34;Host&#34;</span><span class="p">)</span>
+
+	<span class="nx">ctx</span><span class="p">,</span> <span class="nx">cancelCtx</span> <span class="o">:=</span> <span class="nx">context</span><span class="p">.</span><span class="nf">WithCancel</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+	<span class="nx">req</span><span class="p">.</span><span class="nx">ctx</span> <span class="p">=</span> <span class="nx">ctx</span>
+	<span class="nx">req</span><span class="p">.</span><span class="nx">RemoteAddr</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">remoteAddr</span>
+	<span class="nx">req</span><span class="p">.</span><span class="nx">TLS</span> <span class="p">=</span> <span class="nx">c</span><span class="p">.</span><span class="nx">tlsState</span>
+	<span class="k">if</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Body</span><span class="p">.(</span><span class="o">*</span><span class="nx">body</span><span class="p">);</span> <span class="nx">ok</span> <span class="p">{</span>
+		<span class="nx">body</span><span class="p">.</span><span class="nx">doEarlyClose</span> <span class="p">=</span> <span class="kc">true</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Adjust the read deadline if necessary.
+</span><span class="c1"></span>	<span class="k">if</span> <span class="p">!</span><span class="nx">hdrDeadline</span><span class="p">.</span><span class="nf">Equal</span><span class="p">(</span><span class="nx">wholeReqDeadline</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">c</span><span class="p">.</span><span class="nx">rwc</span><span class="p">.</span><span class="nf">SetReadDeadline</span><span class="p">(</span><span class="nx">wholeReqDeadline</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nx">w</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">response</span><span class="p">{</span>
+		<span class="nx">conn</span><span class="p">:</span>          <span class="nx">c</span><span class="p">,</span>
+		<span class="nx">cancelCtx</span><span class="p">:</span>     <span class="nx">cancelCtx</span><span class="p">,</span>
+		<span class="nx">req</span><span class="p">:</span>           <span class="nx">req</span><span class="p">,</span>
+		<span class="nx">reqBody</span><span class="p">:</span>       <span class="nx">req</span><span class="p">.</span><span class="nx">Body</span><span class="p">,</span>
+		<span class="nx">handlerHeader</span><span class="p">:</span> <span class="nb">make</span><span class="p">(</span><span class="nx">Header</span><span class="p">),</span>
+		<span class="nx">contentLength</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+		<span class="nx">closeNotifyCh</span><span class="p">:</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">bool</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+
+		<span class="c1">// We populate these ahead of time so we&#39;re not
+</span><span class="c1"></span>		<span class="c1">// reading from req.Header after their Handler starts
+</span><span class="c1"></span>		<span class="c1">// and maybe mutates it (Issue 14940)
+</span><span class="c1"></span>		<span class="nx">wants10KeepAlive</span><span class="p">:</span> <span class="nx">req</span><span class="p">.</span><span class="nf">wantsHttp10KeepAlive</span><span class="p">(),</span>
+		<span class="nx">wantsClose</span><span class="p">:</span>       <span class="nx">req</span><span class="p">.</span><span class="nf">wantsClose</span><span class="p">(),</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">isH2Upgrade</span> <span class="p">{</span>
+		<span class="nx">w</span><span class="p">.</span><span class="nx">closeAfterReply</span> <span class="p">=</span> <span class="kc">true</span>
+	<span class="p">}</span>
+	<span class="nx">w</span><span class="p">.</span><span class="nx">cw</span><span class="p">.</span><span class="nx">res</span> <span class="p">=</span> <span class="nx">w</span>
+	<span class="nx">w</span><span class="p">.</span><span class="nx">w</span> <span class="p">=</span> <span class="nf">newBufioWriterSize</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">w</span><span class="p">.</span><span class="nx">cw</span><span class="p">,</span> <span class="nx">bufferBeforeChunkingSize</span><span class="p">)</span>
+	<span class="k">return</span> <span class="nx">w</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+</code></pre></div><h4 id="readrequest-1">readRequest<a href="#readrequest-1" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="nf">readRequest</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">bufio</span><span class="p">.</span><span class="nx">Reader</span><span class="p">,</span> <span class="nx">deleteHostHeader</span> <span class="kt">bool</span><span class="p">)</span> <span class="p">(</span><span class="nx">req</span> <span class="o">*</span><span class="nx">Request</span><span class="p">,</span> <span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">tp</span> <span class="o">:=</span> <span class="nf">newTextprotoReader</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span>
+	<span class="nx">req</span> <span class="p">=</span> <span class="nb">new</span><span class="p">(</span><span class="nx">Request</span><span class="p">)</span>
+
+	<span class="c1">// First line: GET /index.html HTTP/1.0
+</span><span class="c1"></span>	<span class="kd">var</span> <span class="nx">s</span> <span class="kt">string</span>
+	<span class="k">if</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">tp</span><span class="p">.</span><span class="nf">ReadLine</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+	<span class="k">defer</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+		<span class="nf">putTextprotoReader</span><span class="p">(</span><span class="nx">tp</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nx">err</span> <span class="o">==</span> <span class="nx">io</span><span class="p">.</span><span class="nx">EOF</span> <span class="p">{</span>
+			<span class="nx">err</span> <span class="p">=</span> <span class="nx">io</span><span class="p">.</span><span class="nx">ErrUnexpectedEOF</span>
+		<span class="p">}</span>
+	<span class="p">}()</span>
+
+	<span class="kd">var</span> <span class="nx">ok</span> <span class="kt">bool</span>
+	<span class="nx">req</span><span class="p">.</span><span class="nx">Method</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">RequestURI</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Proto</span><span class="p">,</span> <span class="nx">ok</span> <span class="p">=</span> <span class="nf">parseRequestLine</span><span class="p">(</span><span class="nx">s</span><span class="p">)</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">badStringError</span><span class="p">{</span><span class="s">&#34;malformed HTTP request&#34;</span><span class="p">,</span> <span class="nx">s</span><span class="p">}</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="p">!</span><span class="nf">validMethod</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Method</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">badStringError</span><span class="p">{</span><span class="s">&#34;invalid method&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Method</span><span class="p">}</span>
+	<span class="p">}</span>
+	<span class="nx">rawurl</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">RequestURI</span>
+	<span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">ProtoMajor</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">ProtoMinor</span><span class="p">,</span> <span class="nx">ok</span> <span class="p">=</span> <span class="nf">ParseHTTPVersion</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Proto</span><span class="p">);</span> <span class="p">!</span><span class="nx">ok</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="o">&amp;</span><span class="nx">badStringError</span><span class="p">{</span><span class="s">&#34;malformed HTTP version&#34;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Proto</span><span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="c1">// CONNECT requests are used two different ways, and neither uses a full URL:
+</span><span class="c1"></span>	<span class="c1">// The standard use is to tunnel HTTPS through an HTTP proxy.
+</span><span class="c1"></span>	<span class="c1">// It looks like &#34;CONNECT www.google.com:443 HTTP/1.1&#34;, and the parameter is
+</span><span class="c1"></span>	<span class="c1">// just the authority section of a URL. This information should go in req.URL.Host.
+</span><span class="c1"></span>	<span class="c1">//
+</span><span class="c1"></span>	<span class="c1">// The net/rpc package also uses CONNECT, but there the parameter is a path
+</span><span class="c1"></span>	<span class="c1">// that starts with a slash. It can be parsed with the regular URL parser,
+</span><span class="c1"></span>	<span class="c1">// and the path will end up in req.URL.Path, where it needs to be in order for
+</span><span class="c1"></span>	<span class="c1">// RPC to work.
+</span><span class="c1"></span>	<span class="nx">justAuthority</span> <span class="o">:=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Method</span> <span class="o">==</span> <span class="s">&#34;CONNECT&#34;</span> <span class="o">&amp;&amp;</span> <span class="p">!</span><span class="nx">strings</span><span class="p">.</span><span class="nf">HasPrefix</span><span class="p">(</span><span class="nx">rawurl</span><span class="p">,</span> <span class="s">&#34;/&#34;</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">justAuthority</span> <span class="p">{</span>
+		<span class="nx">rawurl</span> <span class="p">=</span> <span class="s">&#34;http://&#34;</span> <span class="o">+</span> <span class="nx">rawurl</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">URL</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">url</span><span class="p">.</span><span class="nf">ParseRequestURI</span><span class="p">(</span><span class="nx">rawurl</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nx">justAuthority</span> <span class="p">{</span>
+		<span class="c1">// Strip the bogus &#34;http://&#34; back off.
+</span><span class="c1"></span>		<span class="nx">req</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Scheme</span> <span class="p">=</span> <span class="s">&#34;&#34;</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Subsequent lines: Key: value.
+</span><span class="c1"></span>	<span class="nx">mimeHeader</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">tp</span><span class="p">.</span><span class="nf">ReadMIMEHeader</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+	<span class="nx">req</span><span class="p">.</span><span class="nx">Header</span> <span class="p">=</span> <span class="nf">Header</span><span class="p">(</span><span class="nx">mimeHeader</span><span class="p">)</span>
+
+	<span class="c1">// RFC 7230, section 5.3: Must treat
+</span><span class="c1"></span>	<span class="c1">//	GET /index.html HTTP/1.1
+</span><span class="c1"></span>	<span class="c1">//	Host: www.google.com
+</span><span class="c1"></span>	<span class="c1">// and
+</span><span class="c1"></span>	<span class="c1">//	GET http://www.google.com/index.html HTTP/1.1
+</span><span class="c1"></span>	<span class="c1">//	Host: doesntmatter
+</span><span class="c1"></span>	<span class="c1">// the same. In the second case, any Host line is ignored.
+</span><span class="c1"></span>	<span class="nx">req</span><span class="p">.</span><span class="nx">Host</span> <span class="p">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">URL</span><span class="p">.</span><span class="nx">Host</span>
+	<span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Host</span> <span class="o">==</span> <span class="s">&#34;&#34;</span> <span class="p">{</span>
+		<span class="nx">req</span><span class="p">.</span><span class="nx">Host</span> <span class="p">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s">&#34;Host&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">deleteHostHeader</span> <span class="p">{</span>
+		<span class="nb">delete</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">,</span> <span class="s">&#34;Host&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="nf">fixPragmaCacheControl</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">)</span>
+
+    <span class="c1">// 根据Header和HTTP协议判断是否需要关闭
+</span><span class="c1"></span>	<span class="nx">req</span><span class="p">.</span><span class="nx">Close</span> <span class="p">=</span> <span class="nf">shouldClose</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">ProtoMajor</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">ProtoMinor</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">Header</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+
+    <span class="c1">// 读取header、body等其他信息
+</span><span class="c1"></span>	<span class="nx">err</span> <span class="p">=</span> <span class="nf">readTransfer</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nf">isH2Upgrade</span><span class="p">()</span> <span class="p">{</span>
+		<span class="c1">// Because it&#39;s neither chunked, nor declared:
+</span><span class="c1"></span>		<span class="nx">req</span><span class="p">.</span><span class="nx">ContentLength</span> <span class="p">=</span> <span class="o">-</span><span class="mi">1</span>
+
+		<span class="c1">// We want to give handlers a chance to hijack the
+</span><span class="c1"></span>		<span class="c1">// connection, but we need to prevent the Server from
+</span><span class="c1"></span>		<span class="c1">// dealing with the connection further if it&#39;s not
+</span><span class="c1"></span>		<span class="c1">// hijacked. Set Close to ensure that:
+</span><span class="c1"></span>		<span class="nx">req</span><span class="p">.</span><span class="nx">Close</span> <span class="p">=</span> <span class="kc">true</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nx">req</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="readtransfer">readTransfer<a href="#readtransfer" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="nx">msg</span> <span class="nx">是</span><span class="o">*</span><span class="nx">Request或者</span><span class="o">*</span><span class="nx">Response</span><span class="p">.</span>
+<span class="kd">func</span> <span class="nf">readTransfer</span><span class="p">(</span><span class="nx">msg</span> <span class="kd">interface</span><span class="p">{},</span> <span class="nx">r</span> <span class="o">*</span><span class="nx">bufio</span><span class="p">.</span><span class="nx">Reader</span><span class="p">)</span> <span class="p">(</span><span class="nx">err</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+	<span class="nx">t</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">transferReader</span><span class="p">{</span><span class="nx">RequestMethod</span><span class="p">:</span> <span class="s">&#34;GET&#34;</span><span class="p">}</span>
+
+	<span class="c1">// Unify input
+</span><span class="c1"></span>	<span class="nx">isResponse</span> <span class="o">:=</span> <span class="kc">false</span>
+	<span class="k">switch</span> <span class="nx">rr</span> <span class="o">:=</span> <span class="nx">msg</span><span class="p">.(</span><span class="kd">type</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="o">*</span><span class="nx">Response</span><span class="p">:</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">Header</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">Header</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">StatusCode</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">StatusCode</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMajor</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">ProtoMajor</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMinor</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">ProtoMinor</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">Close</span> <span class="p">=</span> <span class="nf">shouldClose</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMajor</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMinor</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Header</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+		<span class="nx">isResponse</span> <span class="p">=</span> <span class="kc">true</span>
+		<span class="k">if</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">Request</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="nx">t</span><span class="p">.</span><span class="nx">RequestMethod</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">Request</span><span class="p">.</span><span class="nx">Method</span>
+		<span class="p">}</span>
+	<span class="k">case</span> <span class="o">*</span><span class="nx">Request</span><span class="p">:</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">Header</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">Header</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">RequestMethod</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">Method</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMajor</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">ProtoMajor</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMinor</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">ProtoMinor</span>
+		<span class="c1">// Transfer semantics for Requests are exactly like those for
+</span><span class="c1"></span>		<span class="c1">// Responses with status code 200, responding to a GET method
+</span><span class="c1"></span>		<span class="nx">t</span><span class="p">.</span><span class="nx">StatusCode</span> <span class="p">=</span> <span class="mi">200</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">Close</span> <span class="p">=</span> <span class="nx">rr</span><span class="p">.</span><span class="nx">Close</span>
+	<span class="k">default</span><span class="p">:</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;unexpected type&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Default to HTTP/1.1
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMajor</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMinor</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMajor</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">ProtoMinor</span> <span class="p">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Transfer encoding, content length
+</span><span class="c1"></span>	<span class="nx">err</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nf">fixTransferEncoding</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="nx">realLength</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">fixLength</span><span class="p">(</span><span class="nx">isResponse</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">StatusCode</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">RequestMethod</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Header</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">TransferEncoding</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">err</span>
+	<span class="p">}</span>
+	<span class="k">if</span> <span class="nx">isResponse</span> <span class="o">&amp;&amp;</span> <span class="nx">t</span><span class="p">.</span><span class="nx">RequestMethod</span> <span class="o">==</span> <span class="s">&#34;HEAD&#34;</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="nx">n</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nf">parseContentLength</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">Header</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s">&#34;Content-Length&#34;</span><span class="p">));</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+			<span class="k">return</span> <span class="nx">err</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="nx">t</span><span class="p">.</span><span class="nx">ContentLength</span> <span class="p">=</span> <span class="nx">n</span>
+		<span class="p">}</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">ContentLength</span> <span class="p">=</span> <span class="nx">realLength</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Trailer
+</span><span class="c1"></span>	<span class="nx">t</span><span class="p">.</span><span class="nx">Trailer</span><span class="p">,</span> <span class="nx">err</span> <span class="p">=</span> <span class="nf">fixTrailer</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">Header</span><span class="p">,</span> <span class="nx">t</span><span class="p">.</span><span class="nx">TransferEncoding</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+		<span class="k">return</span> <span class="nx">err</span>
+	<span class="p">}</span>
+
+	<span class="c1">// If there is no Content-Length or chunked Transfer-Encoding on a *Response
+</span><span class="c1"></span>	<span class="c1">// and the status is not 1xx, 204 or 304, then the body is unbounded.
+</span><span class="c1"></span>	<span class="c1">// See RFC 7230, section 3.3.
+</span><span class="c1"></span>	<span class="k">switch</span> <span class="nx">msg</span><span class="p">.(</span><span class="kd">type</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="o">*</span><span class="nx">Response</span><span class="p">:</span>
+		<span class="k">if</span> <span class="nx">realLength</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span>
+			<span class="p">!</span><span class="nf">chunked</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">TransferEncoding</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+			<span class="nf">bodyAllowedForStatus</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">StatusCode</span><span class="p">)</span> <span class="p">{</span>
+			<span class="c1">// Unbounded body.
+</span><span class="c1"></span>			<span class="nx">t</span><span class="p">.</span><span class="nx">Close</span> <span class="p">=</span> <span class="kc">true</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Prepare body reader. ContentLength &lt; 0 means chunked encoding
+</span><span class="c1"></span>	<span class="c1">// or close connection when finished, since multipart is not supported yet
+</span><span class="c1"></span>	<span class="k">switch</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="nf">chunked</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">TransferEncoding</span><span class="p">):</span>
+		<span class="k">if</span> <span class="nf">noResponseBodyExpected</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">RequestMethod</span><span class="p">)</span> <span class="o">||</span> <span class="p">!</span><span class="nf">bodyAllowedForStatus</span><span class="p">(</span><span class="nx">t</span><span class="p">.</span><span class="nx">StatusCode</span><span class="p">)</span> <span class="p">{</span>
+			<span class="nx">t</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="nx">NoBody</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="nx">t</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">body</span><span class="p">{</span><span class="nx">src</span><span class="p">:</span> <span class="nx">internal</span><span class="p">.</span><span class="nf">NewChunkedReader</span><span class="p">(</span><span class="nx">r</span><span class="p">),</span> <span class="nx">hdr</span><span class="p">:</span> <span class="nx">msg</span><span class="p">,</span> <span class="nx">r</span><span class="p">:</span> <span class="nx">r</span><span class="p">,</span> <span class="nx">closing</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Close</span><span class="p">}</span>
+		<span class="p">}</span>
+	<span class="k">case</span> <span class="nx">realLength</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="nx">NoBody</span>
+	<span class="k">case</span> <span class="nx">realLength</span> <span class="p">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+		<span class="nx">t</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">body</span><span class="p">{</span><span class="nx">src</span><span class="p">:</span> <span class="nx">io</span><span class="p">.</span><span class="nf">LimitReader</span><span class="p">(</span><span class="nx">r</span><span class="p">,</span> <span class="nx">realLength</span><span class="p">),</span> <span class="nx">closing</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Close</span><span class="p">}</span>
+	<span class="k">default</span><span class="p">:</span>
+		<span class="c1">// realLength &lt; 0, i.e. &#34;Content-Length&#34; not mentioned in header
+</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Close</span> <span class="p">{</span>
+			<span class="c1">// Close semantics (i.e. HTTP/1.0)
+</span><span class="c1"></span>			<span class="nx">t</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="o">&amp;</span><span class="nx">body</span><span class="p">{</span><span class="nx">src</span><span class="p">:</span> <span class="nx">r</span><span class="p">,</span> <span class="nx">closing</span><span class="p">:</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Close</span><span class="p">}</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="c1">// Persistent connection (i.e. HTTP/1.1)
+</span><span class="c1"></span>			<span class="nx">t</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="nx">NoBody</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="c1">// Unify output
+</span><span class="c1"></span>	<span class="k">switch</span> <span class="nx">rr</span> <span class="o">:=</span> <span class="nx">msg</span><span class="p">.(</span><span class="kd">type</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">case</span> <span class="o">*</span><span class="nx">Request</span><span class="p">:</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Body</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">ContentLength</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">ContentLength</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">TransferEncoding</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">TransferEncoding</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">Close</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Close</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">Trailer</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Trailer</span>
+	<span class="k">case</span> <span class="o">*</span><span class="nx">Response</span><span class="p">:</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">Body</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Body</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">ContentLength</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">ContentLength</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">TransferEncoding</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">TransferEncoding</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">Close</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Close</span>
+		<span class="nx">rr</span><span class="p">.</span><span class="nx">Trailer</span> <span class="p">=</span> <span class="nx">t</span><span class="p">.</span><span class="nx">Trailer</span>
+	<span class="p">}</span>
+
+	<span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="body">body<a href="#body" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>Request和Reponse的Body</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">body</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">src</span>          <span class="nx">io</span><span class="p">.</span><span class="nx">Reader</span>
+	<span class="nx">hdr</span>          <span class="kd">interface</span><span class="p">{}</span>   <span class="c1">// non-nil (Response or Request) value means read trailer
+</span><span class="c1"></span>	<span class="nx">r</span>            <span class="o">*</span><span class="nx">bufio</span><span class="p">.</span><span class="nx">Reader</span> <span class="c1">// underlying wire-format reader for the trailer
+</span><span class="c1"></span>	<span class="nx">closing</span>      <span class="kt">bool</span>          <span class="c1">// is the connection to be closed after reading body?
+</span><span class="c1"></span>	<span class="nx">doEarlyClose</span> <span class="kt">bool</span>          <span class="c1">// whether Close should stop early
+</span><span class="c1"></span>
+	<span class="nx">mu</span>         <span class="nx">sync</span><span class="p">.</span><span class="nx">Mutex</span> <span class="c1">// guards following, and calls to Read and Close
+</span><span class="c1"></span>	<span class="nx">sawEOF</span>     <span class="kt">bool</span>
+	<span class="nx">closed</span>     <span class="kt">bool</span>
+	<span class="nx">earlyClose</span> <span class="kt">bool</span>   <span class="c1">// Close called and we didn&#39;t read to the end of src
+</span><span class="c1"></span>	<span class="nx">onHitEOF</span>   <span class="kd">func</span><span class="p">()</span> <span class="c1">// if non-nil, func to call when EOF is Read
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div>
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2021-06-27 09:26 &#43;0800</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="next-post" href="https://leonzyang.github.io/posts/panic/">
+				<span class="post-nav-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>&nbsp;</span><br><span>Go-深入理解Panic</span>
+			</a>
+			<a class="prev-post" href="https://leonzyang.github.io/posts/gobuild/">
+				<span class="post-nav-label">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Go-深入理解go程序运行和编译</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2021 <a href="https://leonzyang.github.io">LeonZhao</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://leonzyang.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://leonzyang.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>

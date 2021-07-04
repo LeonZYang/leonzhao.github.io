@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Go-深入理解WaitGroup">
+<meta itemprop="description" content="深入理解WaitGroup waitgroup主要是用来等待一些goroutine完成
+数据结构 type WaitGroup struct { noCopy noCopy // 不允许拷贝，用go vet检测  // 高32位存储counter数量，低32位存储waiter数量，最后4个字节存储sema 	state1 [3]uint32 } 主要方法 Add func (wg *WaitGroup) Add(delta int) { // 获取statep和sema 	statep, semap := wg.state() if race.Enabled { _ = *statep // trigger nil deref early 	if delta &lt; 0 { // Synchronize decrements with Wait. 	race.ReleaseMerge(unsafe.Pointer(wg)) } race.Disable() defer race.Enable() } // goroutine&#43;delta，delta可能是负数 	state := atomic.AddUint64(statep, uint64(delta)&lt;&lt;32) v := int32(state &gt;&gt; 32) // 获取waiters 	w := uint32(state) if race.">
+<meta itemprop="datePublished" content="2021-06-27T09:30:47+08:00" />
+<meta itemprop="dateModified" content="2021-06-27T09:30:47+08:00" />
+<meta itemprop="wordCount" content="303">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta property="og:title" content="Go-深入理解WaitGroup" />
+<meta property="og:description" content="深入理解WaitGroup waitgroup主要是用来等待一些goroutine完成
+数据结构 type WaitGroup struct { noCopy noCopy // 不允许拷贝，用go vet检测  // 高32位存储counter数量，低32位存储waiter数量，最后4个字节存储sema 	state1 [3]uint32 } 主要方法 Add func (wg *WaitGroup) Add(delta int) { // 获取statep和sema 	statep, semap := wg.state() if race.Enabled { _ = *statep // trigger nil deref early 	if delta &lt; 0 { // Synchronize decrements with Wait. 	race.ReleaseMerge(unsafe.Pointer(wg)) } race.Disable() defer race.Enable() } // goroutine&#43;delta，delta可能是负数 	state := atomic.AddUint64(statep, uint64(delta)&lt;&lt;32) v := int32(state &gt;&gt; 32) // 获取waiters 	w := uint32(state) if race." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://leonzyang.github.io/posts/waitgroup/" />
+<meta property="article:published_time" content="2021-06-27T09:30:47+08:00" />
+<meta property="article:modified_time" content="2021-06-27T09:30:47+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Go-深入理解WaitGroup"/>
+<meta name="twitter:description" content="深入理解WaitGroup waitgroup主要是用来等待一些goroutine完成
+数据结构 type WaitGroup struct { noCopy noCopy // 不允许拷贝，用go vet检测  // 高32位存储counter数量，低32位存储waiter数量，最后4个字节存储sema 	state1 [3]uint32 } 主要方法 Add func (wg *WaitGroup) Add(delta int) { // 获取statep和sema 	statep, semap := wg.state() if race.Enabled { _ = *statep // trigger nil deref early 	if delta &lt; 0 { // Synchronize decrements with Wait. 	race.ReleaseMerge(unsafe.Pointer(wg)) } race.Disable() defer race.Enable() } // goroutine&#43;delta，delta可能是负数 	state := atomic.AddUint64(statep, uint64(delta)&lt;&lt;32) v := int32(state &gt;&gt; 32) // 获取waiters 	w := uint32(state) if race."/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Go-深入理解WaitGroup</title>
+	<link rel="stylesheet" href="https://leonzyang.github.io/css/style.min.eac77496566fd7d5768fd650ddb0b2b181ca6a2d7c5fdd6fe6b8ba4bf47e566f.css" integrity="sha256-6sd0llZv19V2j9ZQ3bCysYHKai18X91v5ri6S/R+Vm8=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://leonzyang.github.io">LeonZhao的小木屋</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://leonzyang.github.io/posts/">博客</a>
+				<a href="https://leonzyang.github.io/datastruct/">数据结构</a>
+				<a href="https://leonzyang.github.io/algo/">算法</a>
+				<a href="https://leonzyang.github.io/network/">网络</a>
+				<a href="https://leonzyang.github.io/interview/">面试</a>
+				<a href="https://leonzyang.github.io/about/">关于</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://github.com/" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://leonzyang.github.io/posts/">博客</a></li>
+			<li><a href="https://leonzyang.github.io/datastruct/">数据结构</a></li>
+			<li><a href="https://leonzyang.github.io/algo/">算法</a></li>
+			<li><a href="https://leonzyang.github.io/network/">网络</a></li>
+			<li><a href="https://leonzyang.github.io/interview/">面试</a></li>
+			<li><a href="https://leonzyang.github.io/about/">关于</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Jun 27, 2021</span></div>
+				<h1>Go-深入理解WaitGroup</h1>
+			</header>
+			<div class="content">
+				<h2 id="深入理解waitgroup">深入理解WaitGroup<a href="#深入理解waitgroup" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>waitgroup主要是用来等待一些goroutine完成</p>
+<h3 id="数据结构">数据结构<a href="#数据结构" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">WaitGroup</span> <span class="kd">struct</span> <span class="p">{</span>
+	<span class="nx">noCopy</span> <span class="nx">noCopy</span>   <span class="c1">// 不允许拷贝，用go vet检测
+</span><span class="c1"></span>
+	<span class="c1">// 高32位存储counter数量，低32位存储waiter数量，最后4个字节存储sema
+</span><span class="c1"></span>	<span class="nx">state1</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="kt">uint32</span>
+<span class="p">}</span>
+</code></pre></div><h3 id="主要方法">主要方法<a href="#主要方法" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<h4 id="add">Add<a href="#add" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">wg</span> <span class="o">*</span><span class="nx">WaitGroup</span><span class="p">)</span> <span class="nf">Add</span><span class="p">(</span><span class="nx">delta</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 获取statep和sema
+</span><span class="c1"></span>	<span class="nx">statep</span><span class="p">,</span> <span class="nx">semap</span> <span class="o">:=</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">state</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">race</span><span class="p">.</span><span class="nx">Enabled</span> <span class="p">{</span>
+		<span class="nx">_</span> <span class="p">=</span> <span class="o">*</span><span class="nx">statep</span> <span class="c1">// trigger nil deref early
+</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">delta</span> <span class="p">&lt;</span> <span class="mi">0</span> <span class="p">{</span>
+			<span class="c1">// Synchronize decrements with Wait.
+</span><span class="c1"></span>			<span class="nx">race</span><span class="p">.</span><span class="nf">ReleaseMerge</span><span class="p">(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="nx">wg</span><span class="p">))</span>
+		<span class="p">}</span>
+		<span class="nx">race</span><span class="p">.</span><span class="nf">Disable</span><span class="p">()</span>
+		<span class="k">defer</span> <span class="nx">race</span><span class="p">.</span><span class="nf">Enable</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="c1">// goroutine+delta，delta可能是负数
+</span><span class="c1"></span>	<span class="nx">state</span> <span class="o">:=</span> <span class="nx">atomic</span><span class="p">.</span><span class="nf">AddUint64</span><span class="p">(</span><span class="nx">statep</span><span class="p">,</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">delta</span><span class="p">)</span><span class="o">&lt;&lt;</span><span class="mi">32</span><span class="p">)</span>
+	<span class="nx">v</span> <span class="o">:=</span> <span class="nb">int32</span><span class="p">(</span><span class="nx">state</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">)</span>
+	<span class="c1">// 获取waiters
+</span><span class="c1"></span>	<span class="nx">w</span> <span class="o">:=</span> <span class="nb">uint32</span><span class="p">(</span><span class="nx">state</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nx">race</span><span class="p">.</span><span class="nx">Enabled</span> <span class="o">&amp;&amp;</span> <span class="nx">delta</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">v</span> <span class="o">==</span> <span class="nb">int32</span><span class="p">(</span><span class="nx">delta</span><span class="p">)</span> <span class="p">{</span>
+		<span class="c1">// The first increment must be synchronized with Wait.
+</span><span class="c1"></span>		<span class="c1">// Need to model this as a read, because there can be
+</span><span class="c1"></span>		<span class="c1">// several concurrent wg.counter transitions from 0.
+</span><span class="c1"></span>		<span class="nx">race</span><span class="p">.</span><span class="nf">Read</span><span class="p">(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="nx">semap</span><span class="p">))</span>
+	<span class="p">}</span>
+	<span class="c1">// add后的counter不能为负数
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">v</span> <span class="p">&lt;</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;sync: negative WaitGroup counter&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="c1">// 此时wait已经执行(waiter&gt;0)，不能再执行Add
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">w</span> <span class="o">!=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">delta</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="nx">v</span> <span class="o">==</span> <span class="nb">int32</span><span class="p">(</span><span class="nx">delta</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="c1">// 没有waiter 直接return
+</span><span class="c1"></span>	<span class="k">if</span> <span class="nx">v</span> <span class="p">&gt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="nx">w</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+		<span class="k">return</span>
+	<span class="p">}</span>
+
+	<span class="c1">// 到这里v=0， 并w&gt;0，这里状态又不一致，说明又有别的add改变了状态
+</span><span class="c1"></span>	<span class="k">if</span> <span class="o">*</span><span class="nx">statep</span> <span class="o">!=</span> <span class="nx">state</span> <span class="p">{</span>
+		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span><span class="p">)</span>
+	<span class="p">}</span>
+	<span class="c1">// 重置waiters为0
+</span><span class="c1"></span>	<span class="o">*</span><span class="nx">statep</span> <span class="p">=</span> <span class="mi">0</span>
+	<span class="c1">// 开始批量释放信号量
+</span><span class="c1"></span>	<span class="k">for</span> <span class="p">;</span> <span class="nx">w</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">w</span><span class="o">--</span> <span class="p">{</span>
+		<span class="nf">runtime_Semrelease</span><span class="p">(</span><span class="nx">semap</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="done">Done<a href="#done" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>Done就很简单，相当于Add(-1)</p>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go"><span class="kd">func</span> <span class="p">(</span><span class="nx">wg</span> <span class="o">*</span><span class="nx">WaitGroup</span><span class="p">)</span> <span class="nf">Done</span><span class="p">()</span> <span class="p">{</span>
+	<span class="nx">wg</span><span class="p">.</span><span class="nf">Add</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div><h4 id="wait">Wait<a href="#wait" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<div class="highlight"><pre class="chroma"><code class="language-go" data-lang="go">	<span class="nx">statep</span><span class="p">,</span> <span class="nx">semap</span> <span class="o">:=</span> <span class="nx">wg</span><span class="p">.</span><span class="nf">state</span><span class="p">()</span>
+	<span class="k">if</span> <span class="nx">race</span><span class="p">.</span><span class="nx">Enabled</span> <span class="p">{</span>
+		<span class="nx">_</span> <span class="p">=</span> <span class="o">*</span><span class="nx">statep</span> <span class="c1">// trigger nil deref early
+</span><span class="c1"></span>		<span class="nx">race</span><span class="p">.</span><span class="nf">Disable</span><span class="p">()</span>
+	<span class="p">}</span>
+	<span class="k">for</span> <span class="p">{</span>
+		<span class="nx">state</span> <span class="o">:=</span> <span class="nx">atomic</span><span class="p">.</span><span class="nf">LoadUint64</span><span class="p">(</span><span class="nx">statep</span><span class="p">)</span>
+		<span class="c1">// 获取counter和waiter的值
+</span><span class="c1"></span>		<span class="nx">v</span> <span class="o">:=</span> <span class="nb">int32</span><span class="p">(</span><span class="nx">state</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">)</span>
+		<span class="nx">w</span> <span class="o">:=</span> <span class="nb">uint32</span><span class="p">(</span><span class="nx">state</span><span class="p">)</span>
+		<span class="k">if</span> <span class="nx">v</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+			<span class="c1">// counter为0，不需要等待
+</span><span class="c1"></span>			<span class="k">if</span> <span class="nx">race</span><span class="p">.</span><span class="nx">Enabled</span> <span class="p">{</span>
+				<span class="nx">race</span><span class="p">.</span><span class="nf">Enable</span><span class="p">()</span>
+				<span class="nx">race</span><span class="p">.</span><span class="nf">Acquire</span><span class="p">(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="nx">wg</span><span class="p">))</span>
+			<span class="p">}</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+		<span class="c1">// 增加waiter的count
+</span><span class="c1"></span>		<span class="k">if</span> <span class="nx">atomic</span><span class="p">.</span><span class="nf">CompareAndSwapUint64</span><span class="p">(</span><span class="nx">statep</span><span class="p">,</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">state</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="nx">race</span><span class="p">.</span><span class="nx">Enabled</span> <span class="o">&amp;&amp;</span> <span class="nx">w</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+				<span class="nx">race</span><span class="p">.</span><span class="nf">Write</span><span class="p">(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="nx">semap</span><span class="p">))</span>
+			<span class="p">}</span>
+			<span class="c1">// 阻塞的获取sema
+</span><span class="c1"></span>			<span class="nf">runtime_Semacquire</span><span class="p">(</span><span class="nx">semap</span><span class="p">)</span>
+			<span class="c1">// Add都结束了，但是又有Add执行了
+</span><span class="c1"></span>			<span class="k">if</span> <span class="o">*</span><span class="nx">statep</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
+				<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;sync: WaitGroup is reused before previous Wait has returned&#34;</span><span class="p">)</span>
+			<span class="p">}</span>
+			<span class="k">if</span> <span class="nx">race</span><span class="p">.</span><span class="nx">Enabled</span> <span class="p">{</span>
+				<span class="nx">race</span><span class="p">.</span><span class="nf">Enable</span><span class="p">()</span>
+				<span class="nx">race</span><span class="p">.</span><span class="nf">Acquire</span><span class="p">(</span><span class="nx">unsafe</span><span class="p">.</span><span class="nf">Pointer</span><span class="p">(</span><span class="nx">wg</span><span class="p">))</span>
+			<span class="p">}</span>
+			<span class="k">return</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2021-06-27 09:30 &#43;0800</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="next-post" href="https://leonzyang.github.io/posts/syncmap/">
+				<span class="post-nav-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>&nbsp;</span><br><span>Go-深入理解sync.Map</span>
+			</a>
+			<a class="prev-post" href="https://leonzyang.github.io/posts/reflect/">
+				<span class="post-nav-label">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Go-深入理解Reflect</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2021 <a href="https://leonzyang.github.io">LeonZhao</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://leonzyang.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://leonzyang.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>

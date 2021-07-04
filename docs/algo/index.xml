@@ -1,13 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Algos on LeonZhao Home</title>
+    <title>Algos on LeonZhao的小木屋</title>
     <link>https://leonzyang.github.io/algo/</link>
-    <description>Recent content in Algos on LeonZhao Home</description>
+    <description>Recent content in Algos on LeonZhao的小木屋</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Sun, 06 Jun 2021 10:39:29 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/algo/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 22 Jun 2021 20:57:57 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/algo/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>二分查找</title>
+      <link>https://leonzyang.github.io/algo/binary_search/</link>
+      <pubDate>Tue, 22 Jun 2021 20:57:57 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/algo/binary_search/</guid>
+      <description>二分查找 二分查找是一种简单易懂的快速查找算法，二分查找要求必须有序。
+算法实现 def binary_search(arr, target): low = 0 high = len(arr) - 1 while low &amp;lt;= high: mid = high - ((high - low) &amp;gt;&amp;gt; 1) if arr[mid] == target: return mid elif arr[mid] &amp;gt; target: high = mid - 1 else: low = mid + 1 return -1 循环退出条件 当 low &amp;gt; high 就是循环退出
+mid 取值 采用mid = high - (high - low) &amp;gt;&amp;gt; 1是为了防止 mid 溢出
+low 和 high 的更新 对 low 和 high 进行+1 和-1 的操作，如果等于 mid，可能会造成死循环</description>
+    </item>
+    
     <item>
       <title>中缀转后缀表达式</title>
       <link>https://leonzyang.github.io/algo/rpn/</link>
@@ -93,16 +105,7 @@ def recursion(参数): if 结束条件: return 处理问题 recursion(缩小参�
       <pubDate>Sun, 18 Apr 2021 16:11:24 +0800</pubDate>
       
       <guid>https://leonzyang.github.io/algo/sort/select_sort/</guid>
-      <description> 时间复杂度O(n2) 稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j+1, len(arr)): if arr[i] &amp;lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] </description>
-    </item>
-    
-    <item>
-      <title>排序算法-快速排序</title>
-      <link>https://leonzyang.github.io/algo/sort/quick_sort/</link>
-      <pubDate>Sun, 18 Apr 2021 16:11:15 +0800</pubDate>
-      
-      <guid>https://leonzyang.github.io/algo/sort/quick_sort/</guid>
-      <description> 时间复杂度O(nlogN) 不稳定排序   def quick_sort(arr, low, high): if low &amp;lt; high: m = partition(arr, low, high) quick_sort(arr, low, m) quick_sort(arr, m+1， high) def partition(arr, left, right): priv = arr[left] while left &amp;lt; right: while left &amp;lt; right and arr[right] &amp;gt; priv: right -= 1 arr[left] = arr[right] while left &amp;lt; right and arr[left] &amp;gt;= priv: left += 1 arr[right] = arr[left] arr[left] = priv return left </description>
+      <description> 时间复杂度O(n2) 不稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j+1, len(arr)): if arr[i] &amp;lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] </description>
     </item>
     
   </channel>

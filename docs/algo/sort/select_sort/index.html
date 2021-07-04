@@ -8,7 +8,7 @@
 	<meta name="theme-color" content="#494f5c">
 	<meta name="msapplication-TileColor" content="#494f5c">
 <meta itemprop="name" content="排序算法-选择排序">
-<meta itemprop="description" content=" 时间复杂度O(n2) 稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j&#43;1, len(arr)): if arr[i] &lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] ">
+<meta itemprop="description" content=" 时间复杂度O(n2) 不稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j&#43;1, len(arr)): if arr[i] &lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] ">
 <meta itemprop="datePublished" content="2021-04-18T16:11:24+08:00" />
 <meta itemprop="dateModified" content="2021-04-18T16:11:24+08:00" />
 <meta itemprop="wordCount" content="32">
@@ -17,14 +17,14 @@
 
 <meta itemprop="keywords" content="" />
 <meta property="og:title" content="排序算法-选择排序" />
-<meta property="og:description" content=" 时间复杂度O(n2) 稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j&#43;1, len(arr)): if arr[i] &lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] " />
+<meta property="og:description" content=" 时间复杂度O(n2) 不稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j&#43;1, len(arr)): if arr[i] &lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] " />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://leonzyang.github.io/algo/sort/select_sort/" />
 <meta property="article:published_time" content="2021-04-18T16:11:24+08:00" />
 <meta property="article:modified_time" content="2021-04-18T16:11:24+08:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="排序算法-选择排序"/>
-<meta name="twitter:description" content=" 时间复杂度O(n2) 稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j&#43;1, len(arr)): if arr[i] &lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] "/>
+<meta name="twitter:description" content=" 时间复杂度O(n2) 不稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j&#43;1, len(arr)): if arr[i] &lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] "/>
 
 	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -44,14 +44,16 @@
 		<div class="hdr-wrapper section-inner">
 			<div class="hdr-left">
 				<div class="site-branding">
-					<a href="https://leonzyang.github.io">LeonZhao Home</a>
+					<a href="https://leonzyang.github.io">LeonZhao的小木屋</a>
 				</div>
 				<nav class="site-nav hide-in-mobile">
 					
 				<a href="https://leonzyang.github.io/posts/">博客</a>
 				<a href="https://leonzyang.github.io/datastruct/">数据结构</a>
 				<a href="https://leonzyang.github.io/algo/">算法</a>
-				<a href="https://leonzyang.github.io/about-hugo/">关于</a>
+				<a href="https://leonzyang.github.io/network/">网络</a>
+				<a href="https://leonzyang.github.io/interview/">面试</a>
+				<a href="https://leonzyang.github.io/about/">关于</a>
 
 				</nav>
 			</div>
@@ -65,7 +67,9 @@
 			<li><a href="https://leonzyang.github.io/posts/">博客</a></li>
 			<li><a href="https://leonzyang.github.io/datastruct/">数据结构</a></li>
 			<li><a href="https://leonzyang.github.io/algo/">算法</a></li>
-			<li><a href="https://leonzyang.github.io/about-hugo/">关于</a></li>
+			<li><a href="https://leonzyang.github.io/network/">网络</a></li>
+			<li><a href="https://leonzyang.github.io/interview/">面试</a></li>
+			<li><a href="https://leonzyang.github.io/about/">关于</a></li>
 		</ul>
 	</div>
 
@@ -75,7 +79,7 @@
 		<div class="content">
 			<ul>
 <li>时间复杂度O(n2)</li>
-<li>稳定排序
+<li>不稳定排序
 <img src="/algo/sort/images/select_sort.gif" alt="冒泡排序"></li>
 </ul>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">select_sort</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>

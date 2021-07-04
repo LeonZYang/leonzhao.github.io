@@ -1,124 +1,128 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>LeonZhao Home</title>
+    <title>LeonZhao的小木屋</title>
     <link>https://leonzyang.github.io/</link>
-    <description>Recent content on LeonZhao Home</description>
+    <description>Recent content on LeonZhao的小木屋</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-    <lastBuildDate>Mon, 14 Jun 2021 18:01:10 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 27 Jun 2021 09:58:40 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>平衡二叉树</title>
-      <link>https://leonzyang.github.io/datastruct/avl/</link>
-      <pubDate>Mon, 14 Jun 2021 18:01:10 +0800</pubDate>
+      <title>Python-生成器</title>
+      <link>https://leonzyang.github.io/posts/py-generator/</link>
+      <pubDate>Sun, 27 Jun 2021 09:58:40 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/datastruct/avl/</guid>
-      <description>平衡二索树 平衡二叉树（AVL树）
-空间和时间复杂度 空间时间复杂为O(N)
-时间复杂度:
- 插入 O(logN) 查询 O(logN) 删除 O(logN)  操作 插入 插入会破坏平衡，以下分四种情况说明，假设第一个破坏平衡的节点为k
-  在k节点的左子树的左子树插入   在k节点的左子树的右子树插入   在k节点的右子树的右子树插入
-   在k节点的右子树的左子树插入   删除 分为以下4中情况
- 当前节点为删除节点，且为叶子节点，直接删除 当前节点为删除节点有且只有一个子树，将当前子树替换为当前节点 当前节点为删除节点并且左右子树同时存在，则查找左子树最大值或者右子树最小值，进行替换，并递归删除，这样操作不会影响节点平衡 当前节点不是删除节点，当删除的值小于当前节点值，则在左子树递归删除，反之则在右子树递归删除，该操作会破坏平衡，需要进行平衡操作  class TreeNode: def __init__(self, val: int, left=None, right=None): self.val = val self.left = left self.right = right self.height = 0 def __str__(self) -&amp;gt; str: return str(self.val) class AVLTree: def __init__(self): self.root = None def _height(self, node: TreeNode): return node.</description>
+      <guid>https://leonzyang.github.io/posts/py-generator/</guid>
+      <description>深入理解生成器 生成器是一种特殊的迭代器，当每次调用yield，函数就会暂停。生成器的好处就是节省内存空间。生成器有两种类型：生成器函数和生成器表达式
+生成器表达式 将列表推导式[]改成()就行
+gen=(i for i in range(10)) gen # &amp;lt;generator object &amp;lt;genexpr&amp;gt; at 0x104d21960&amp;gt; isinstance(gen, types.GeneratorType) # True isinstance(gen, collections.Iterator) # True isinstance(gen, collections.Iterable) # True 生成器函数yield def func(): yield 1 yield 2 yield 3 f = func() print(next(f)) # 1 print(next(f)) # 2 print(next(f)) # 3 next 通过next(next其实也是调用__next__)可以进行迭代使用，当达到最后一个元素之后，就会抛出StopIteration
+send 通过send我们可以想生成器函数发送数据，第一次发送必须是next之后，否则会报错，当然我们可以先调用send(None), 等价于next
+send可以向生成器传值的同时会让生成器前进到下一个yield语句，并将yield右侧的值作为返回值
+def func(): x = yield 1 r = yield x print(r) f = func() f.send(None) print(f.</description>
     </item>
     
     <item>
-      <title>二叉搜索树</title>
-      <link>https://leonzyang.github.io/datastruct/bst/</link>
-      <pubDate>Sun, 13 Jun 2021 10:56:06 +0800</pubDate>
+      <title>Python-生成器</title>
+      <link>https://leonzyang.github.io/posts/py-decorator/</link>
+      <pubDate>Sun, 27 Jun 2021 09:58:27 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/datastruct/bst/</guid>
-      <description>二叉手搜索树 二叉搜索树(Binary Search Tree)，又名二叉排序树(Binary Sort Tree)。 二叉搜索树是具有有以下性质的二叉树：
- 若左子树不为空，则左子树上所有节点的值均小于或等于它的根节点的值。 若右子树不为空，则右子树上所有节点的值均大于或等于它的根节点的值。 左、右子树也分别为二叉搜索树。  from typing import List class TreeNode: def __init__(self, val: int): self.val = val self.left = None self.right = None class BST: def __init__(self): self.root = None def insert(self, val: int): if self.root is None: self.root = TreeNode(val) return self._insert_node(self.root, val) def _insert_node(self, root: TreeNode, val: int): if val &amp;lt;= root.val: if root.left is None: root.left = TreeNode(val) else: self.</description>
+      <guid>https://leonzyang.github.io/posts/py-decorator/</guid>
+      <description>理解装饰器 装饰器是Python里面经常使用到的一个功能，通过装饰器我们能在不修改函数的情况下为函数增加一些功能，装饰器通过语法糖调用
+装饰器 普通装饰器 def logger(func): def decorator(*args, **kwargs): print(&amp;#34;func start&amp;#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&amp;#34;my name is %s&amp;#34; % name) func(&amp;#34;leon&amp;#34;) 这是个装饰器的简单例子，整个调用其实就相当于logger(func(name)), 如果是有多个装饰的情况下，那么调用顺序是怎样的？
+@A @B @C def func(): pass 上面执行的的过程就是A(B(C(func())))
+wraps 我们先看一个例子
+def logger(func): def decorator(*args, **kwargs): print(&amp;#34;func start&amp;#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&amp;#34;my name is %s&amp;#34; % name) func(&amp;#34;leon&amp;#34;) print(func.__name__) # decorator 当我们调用func.name 原本上应该输出func，但是因为加入了装饰器，导致__name__、__doc__等一些构造函数被改变了，那么如果我们如何解决这个问题呢？ 这里就需要用到functools.wraps，我们看下加入wraps试下
+from functools import wraps def logger(func): @wraps(func) def decorator(*args, **kwargs): print(&amp;#34;func start&amp;#34;) func(*args, **kwargs) return decorator @logger def func(name): print(&amp;#34;my name is %s&amp;#34; % name) func(&amp;#34;leon&amp;#34;) print(func.</description>
     </item>
     
     <item>
-      <title>中缀转后缀表达式</title>
-      <link>https://leonzyang.github.io/algo/rpn/</link>
-      <pubDate>Sun, 06 Jun 2021 10:39:29 +0800</pubDate>
+      <title>Python-单例模式</title>
+      <link>https://leonzyang.github.io/posts/py-singleleton/</link>
+      <pubDate>Sun, 27 Jun 2021 09:58:17 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/algo/rpn/</guid>
-      <description>中缀转后缀 中缀转后缀表达式 中缀转后缀又叫逆波兰表达式，通过两个栈实现，一个是存储数字，叫数字栈，一个存储符号，叫符号栈
- 遇到数字直接入数字栈 遇到括号，左括号，直接入符号栈，遇到右括号，符号栈为空直接入栈，从符号栈栈顶弹出运算符入数字栈，直接遇到左括号，左括号对齐 遇到运算符，如果运算符优先级大于栈顶运算符，入符号栈, 反之，将符号栈栈顶弹出运算符，入数字栈，然后再将遇到的运算符入符号栈  def rpn(s): oper_stack = Stack() num_stack = Stack() for i in range(len(s)): c = s[i] if ord(c) &amp;gt;= 48 and ord(c) &amp;lt;= 57: num_stack.push(c) elif c == &amp;#39;+&amp;#39; or c == &amp;#39;-&amp;#39;: if len(oper_stack) &amp;gt; 0 and (oper_stack.peek() == &amp;#39;*&amp;#39; or \ oper_stack.peek() == &amp;#39;/&amp;#39;): num_stack.push(oper_stack.pop()) oper_stack.push(c) elif c == &amp;#39;)&amp;#39;: while len(oper_stack) &amp;gt; 0: v = oper_stack.pop() if v == &amp;#39;(&amp;#39;: break num_stack.</description>
+      <guid>https://leonzyang.github.io/posts/py-singleleton/</guid>
+      <description>单例模式 包导入模式 class Singleton: pass singleton = Singleton() 装饰器模式 def SingletonDec(cls): _instance = {} def _singleton(*args, **kwargs): if cls not in _instance: _instance[cls] = cls(*args, **kwargs) return _instance[cls] return _singleton @SingletonDec class Foo: pass 类 class Singleton: def __new__(cls, *args, **kwargs): if not hasattr(cls, &amp;#39;_instance&amp;#39;): cls._instance = super().__new__(cls) return cls._instance 元类 class Singleton(type): def __call__(cls, *args, **kwargs): if not hasattr(cls, &amp;#39;_instance&amp;#39;): cls._instance = super().__call__(*args, **kwargs) return cls._instance class Foo(metaclass=Singleton): pass </description>
     </item>
     
     <item>
-      <title>常见五大算法-贪心</title>
-      <link>https://leonzyang.github.io/algo/greedy/</link>
-      <pubDate>Sun, 16 May 2021 11:45:26 +0800</pubDate>
+      <title>Go-深入理解HTTP Client</title>
+      <link>https://leonzyang.github.io/posts/gohttpclient/</link>
+      <pubDate>Sun, 27 Jun 2021 09:36:17 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/algo/greedy/</guid>
-      <description>贪心算法 常见题解 55. 跳跃游戏 给定一个非负整数数组 nums ，你最初位于数组的 第一个下标 。 数组中的每个元素代表你在该位置可以跳跃的最大长度。 判断你是否能够到达最后一个下标。 示例 1： 输入：nums = [2,3,1,1,4] 输出：true 解释：可以先跳 1 步，从下标 0 到达下标 1, 然后再从下标 1 跳 3 步到达最后一个下标。 示例 2： 输入：nums = [3,2,1,0,4] 输出：false 解释：无论怎样，总会到达下标为 3 的位置。但该下标的最大跳跃长度是 0 ， 所以永远不可能到达最后一个下标。 提示： 1 &amp;lt;= nums.length &amp;lt;= 3 * 104 0 &amp;lt;= nums[i] &amp;lt;= 105 题解 对于这道题，只要求我们返回是否可以跳到最后节点，并没有让我们用最优解，所以我们可以用贪心算法求局部最优，用maxJump存储当前可以跳跃的最大距离，然后遍历数组，如果i小于等于maxJump，则更新最大的跳跃距离，最后如果maxJump大于n-1，则说明可以达到。
-代码 class Solution: def canJump(self, nums: List[int]) -&amp;gt; bool: n = len(nums) # 可以跳跃的最大距离 maxJump = 0 for i in range(n): #  if i &amp;lt;= maxJump: maxJump = max(maxJump, i + nums[i]) if maxJump &amp;gt;= n - 1: return True return False 135.</description>
+      <guid>https://leonzyang.github.io/posts/gohttpclient/</guid>
+      <description>深入理解HTTP Client 数据结构 Client type Client struct { // HTTP Requests的 	Transport RoundTripper // HTTP重定向 	CheckRedirect func(req *Request, via []*Request) error // Cookie 	Jar CookieJar // 客户端请求的超时时间，默认为0，代表永远不超时 	Timeout time.Duration } Transport Transport会缓存连接进行重用
+type Transport struct { idleMu sync.Mutex wantIdle bool // user has requested to close all idle conns  // connectMethodKey 是一个map key，保存了proxy, schema, addr，然后排列生成一个字符串 	idleConn map[connectMethodKey][]*persistConn // 从最近到最晚 	idleConnCh map[connectMethodKey]chan *persistConn idleLRU connLRU reqMu sync.</description>
     </item>
     
     <item>
-      <title>常见五大算法-递归</title>
-      <link>https://leonzyang.github.io/algo/recursion/</link>
-      <pubDate>Mon, 10 May 2021 21:33:54 +0800</pubDate>
+      <title>Go-深入理解内存分配</title>
+      <link>https://leonzyang.github.io/posts/malloc/</link>
+      <pubDate>Sun, 27 Jun 2021 09:32:23 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/algo/recursion/</guid>
-      <description>递归 在数学与计算机科学中，递归(Recursion)是指在函数的定义中使用函数自身的方法。实际上，递归，顾名思义，其包含了两个意思：递 和 归，这正是递归思想的精华所在。
-递归伪代码
-def recursion(参数): if 结束条件: return 处理问题 recursion(缩小参数) 汉诺塔问题 在经典汉诺塔问题中，有 3 根柱子及 N 个不同大小的穿孔圆盘，盘子可以滑入任意一根柱子。一开始，所有盘子自上而下按升序依次套在第一根柱子上(即每一个盘子只能放在更大的盘子上面)。移动圆盘时受到以下限制: (1) 每次只能移动一个盘子; (2) 盘子只能从柱子顶端滑出移到下一根柱子; (3) 盘子只能叠在比它大的盘子上。 请编写程序，用栈将所有盘子从第一根柱子移到最后一根柱子。 你需要原地修改栈。 示例1: 输入：A = [2, 1, 0], B = [], C = [] 输出：C = [2, 1, 0] 示例2: 输入：A = [1, 0], B = [], C = [] 输出：C = [1, 0] 提示: A中盘子的数目不大于14个。 n = 1 时，直接把盘子从 A 移到 C； n &amp;gt; 1 时， 1.</description>
+      <guid>https://leonzyang.github.io/posts/malloc/</guid>
+      <description>深入理解内存分配 CPU缓存 CPU的发展的速度远快于内存的发展，CPU的处理速度也比内存访问速度快很多。这样很多情况下，CPU必须要等内存的相应，为了应对这种情况，CPU多谢缓存就出现了。
+计算机内存金字塔图 缓存大小L1&amp;lt;L2&amp;lt;L3, 速度L1&amp;gt;L2&amp;gt;L3， L1和L2通常用在单核中，L3则用来多核中。CPU缓存的命中率代表了CPU缓存复用的情况。 CPU读取数据是从先从缓存中寻找，如果找到就立即返回给CPU处理，如果没有找到，就从相对慢的速度中读取并返回给CPU处理，同时把这个数据加入缓存中。
+程序内存 unix系统进程内存占用示意图  text段在内存映射中是只读的，data和bss是可读可写 data和bss属于静态内存分配。data是初始化过的，bss是未出华的  TCmalloc TCmalloc全称Thread-Cacheing Malloc, 即线程缓存的malloc，是由Google开发的内存分配器(https://gperftools.github.io/gperftools/tcmalloc.html)。
+TCmalloc通过多级缓存，降低了多线程中锁竞争的情况，通过不同的sizeclass，空间利用率高，碎片少。
+如果想了解细节可以看下：
+ tcmalloc浅析 TCMalloc解密  Go内存分配 Golang内存分配最开始也是TCmalloc的，后来再次基础上也改动了许多，包括内存池、预分配和延迟分配等。
+介绍 Page: Golang里面的Page大小是8KB（x64操作系统页一般是4KB），一般是操作系统页的几倍 maxTinySize： 小于16Byte tinySizeClass: 16B &amp;lt; size &amp;lt;= 32KB maxSmallSize： size &amp;gt; 32K Spans: 存放mspan的指针，指针大小是8byte，每个指针指向arena的一个page bitmap:用于保存arena对应某个地址是否存在对象，以及对象是否被GC扫描过 arena：由一堆page组成 object:
+从别的地方引用的一张内存管理图 go内存结构 总共分为3个区域，spans，bitmap和areaa
+mspan 每个mspan对一个一个page bitmap 每个bitmap对应arena 4个指针的内存，相当于2bit对应1个指针大小的内存，两个2bit分别代表是否指针和是否应该扫描 size class 每个mspan会按照SizeClass的大小分配成若干的object，每个object可以存储一个对象。并且使用allocBits表示object使用情况，mspan会按照上面的分配原则给object分配对象
+// class bytes/obj bytes/span objects tail waste max waste // 1 8 8192 1024 0 87.</description>
     </item>
     
     <item>
-      <title>常用五大算法-回溯</title>
-      <link>https://leonzyang.github.io/algo/backtrack/</link>
-      <pubDate>Sat, 08 May 2021 15:11:03 +0800</pubDate>
+      <title>Go-深入理解sync.Map</title>
+      <link>https://leonzyang.github.io/posts/syncmap/</link>
+      <pubDate>Sun, 27 Jun 2021 09:31:25 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/algo/backtrack/</guid>
-      <description>回溯算法 回溯算法是一个枚举过程，在搜索中寻找问题解，当发现已不满足求解条件时，就“回溯”返回，尝试别的路径。
-框架 res = [] def backtrack(当前路径，选择列表): if 满足条件: res.append(path) return for 值 in 选择列表: 加入到当前路径 backtrack(当前路径，选择条件) 从当前路径弹出 经典题目 全排列 leetcode 46. 全排列
-给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。 示例 1： 输入：nums = [1,2,3] 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]] 示例 2： 输入：nums = [0,1] 输出：[[0,1],[1,0]] 示例 3： 输入：nums = [1] 输出：[[1]] 提示： 1 &amp;lt;= nums.length &amp;lt;= 6 -10 &amp;lt;= nums[i] &amp;lt;= 10 nums 中的所有整数 互不相同 图形展示 这张图取自网络
-解答 class Solution: def permute(self, nums: List[int]) -&amp;gt; List[List[int]]: def backtrack(nums, n, used, path, ret): if len(path) == n: ret.</description>
+      <guid>https://leonzyang.github.io/posts/syncmap/</guid>
+      <description>深入理解sync.Map 数据结构 Map type Map struct { mu Mutex // 锁  read atomic.Value // 优先读取map  dirty map[interface{}]*entry // dirty当前最新的map，提供读写  misses int // 在read中读取不到读取dirty map的次数，当misses=len(dirty)，则将dirty拷贝到read } readOnly type readOnly struct { m map[interface{}]*entry amended bool // dirty中存在但是不在m，则为真 } entry type entry struct { // 如果p为nil， entry已被删除并且m.dirty=nil  // 如果p==expunged， 表示entry已被删除，并且dirty不为nil，并且entry不存在dirty中  // 其他entry是个正常值 	p unsafe.Pointer // *interface{} } expunged expunged是个空指针表示dirty中已删除
+var expunged = unsafe.Pointer(new(interface{})) 使用 Load func (m *Map) Load(key interface{}) (value interface{}, ok bool) { // 第一次从read中获取数据 	read, _ := m.</description>
     </item>
     
     <item>
-      <title>Go Module原理</title>
-      <link>https://leonzyang.github.io/posts/gomdule/</link>
-      <pubDate>Mon, 19 Apr 2021 20:45:00 +0800</pubDate>
+      <title>Go-深入理解WaitGroup</title>
+      <link>https://leonzyang.github.io/posts/waitgroup/</link>
+      <pubDate>Sun, 27 Jun 2021 09:30:47 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/posts/gomdule/</guid>
-      <description>Go Module原理 Go
-Semantic Version 版本号遵循SemVer规范(https://semver.org/)
-最小版本选择(Minimal Version Selection) Go 1.11之前 GOROOT GOPATH
-GOPATH ├── bin //编译生成的二进制文件 ├── pkg //预编译文件，以加快程序的后续编译速度 |── src //所有源代码 ├── github.com ... ... 缺点：
- 缺少版本管理  go1.5 vendor go.mod go1.11 已经有go mod，只是默认关闭，在go1.13 go mod将作为默认管理方式开启
-module require replace replace可以指向一个repo，也可以指向本地
-exclude 排除某个版本，实际中很少使用
-GOPROXY 地址	简介 https://goproxy.io	一个全球代理为 Go 模块而生 https://mirrors.aliyun.com/goproxy/	阿里镜像代理 https://goproxy.cn	七牛云赞助支持的
-go.sum 用于记录每个依赖包的哈希值（SHA-256 算法） 正常情况下，每个依赖包版本会包含两条记录，第一条记录为该依赖包版本整体（所有文件）的哈希值，第二条记录仅表示该依赖包版本中 go.mod 文件的哈希值，如果该依赖包版本没有 go.mod 文件，则只有第一条记录
-go list -m all 查看当前项目最终所使用的 module 版本 go list -u -m all 查看依赖的新版本 go get -u .</description>
+      <guid>https://leonzyang.github.io/posts/waitgroup/</guid>
+      <description>深入理解WaitGroup waitgroup主要是用来等待一些goroutine完成
+数据结构 type WaitGroup struct { noCopy noCopy // 不允许拷贝，用go vet检测  // 高32位存储counter数量，低32位存储waiter数量，最后4个字节存储sema 	state1 [3]uint32 } 主要方法 Add func (wg *WaitGroup) Add(delta int) { // 获取statep和sema 	statep, semap := wg.state() if race.Enabled { _ = *statep // trigger nil deref early 	if delta &amp;lt; 0 { // Synchronize decrements with Wait. 	race.ReleaseMerge(unsafe.Pointer(wg)) } race.Disable() defer race.Enable() } // goroutine+delta，delta可能是负数 	state := atomic.AddUint64(statep, uint64(delta)&amp;lt;&amp;lt;32) v := int32(state &amp;gt;&amp;gt; 32) // 获取waiters 	w := uint32(state) if race.</description>
     </item>
     
     <item>
-      <title>排序算法-希尔排序</title>
-      <link>https://leonzyang.github.io/algo/sort/shell_sort/</link>
-      <pubDate>Sun, 18 Apr 2021 17:49:49 +0800</pubDate>
+      <title>Go-深入理解Reflect</title>
+      <link>https://leonzyang.github.io/posts/reflect/</link>
+      <pubDate>Sun, 27 Jun 2021 09:28:31 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/algo/sort/shell_sort/</guid>
-      <description> 时间复杂度O(nlogN) 不稳定排序   def shell_sort(arr): n = len(arr) gap = n // 2 while gap &amp;gt; 0: for i in range(gap, n): j = i while j &amp;gt; 0: if arr[j] &amp;gt; arr[j-gap]: arr[j], arr[j-gap] = arr[j-gap], arr[j] j-= gap else: break gap /= 2 </description>
+      <guid>https://leonzyang.github.io/posts/reflect/</guid>
+      <description>深入理解Reflect Go是一门静态语言，我们可以使用反射对不同类型的对象进行操作。
+Type 我们可以通过TypeOf将一个对象转换成Type
+t := reflect.TypeOf(1) fmt.Println(t) // int 首先我们看下Type的组成(下图中我们省略了一些字段)
+type Type interface { // 返回第i个方法，超过范围，则panic 	Method(int) Method // 通过名称获取方法 	MethodByName(string) (Method, bool) // 方法数量 	NumMethod() int // 类型名 	Name() string // 返回包路径（完全路径） 	PkgPath() string // 类似unsafe.Sizeof 	Size() uintptr // 字符串表示，可能包含短包名 	String() string // 类型 	Kind() Kind // 如果该类型实现了u的接口，则返回true 	Implements(u Type) bool // 返回元素类型，如果kind不是slice,channel,map,pointer, 则painc 	Elem() Type // 第几个字段 	Field(i int) StructField FieldByIndex(index []int) StructField // 根据name返回字段细腻系 	FieldByName(name string) (StructField, bool) FieldByNameFunc(match func(string) bool) (StructField, bool) // 返回第i个参数类型 	In(i int) Type // 返回array类型的长度，如果不是，则panic 	Len() int // 返回field的数量 	NumField() int // 返回参数的数量 	NumIn() int } 可以看到Type是interface，接下来我们看下TypeOf</description>
     </item>
     
     <item>
-      <title>排序算法-归并排序</title>
-      <link>https://leonzyang.github.io/algo/sort/merge_sort/</link>
-      <pubDate>Sun, 18 Apr 2021 17:49:40 +0800</pubDate>
+      <title>Go-深入理解pool</title>
+      <link>https://leonzyang.github.io/posts/pool/</link>
+      <pubDate>Sun, 27 Jun 2021 09:28:25 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/algo/sort/merge_sort/</guid>
-      <description> 时间复杂度O(nlogN) 不稳定排序   def merge(arrA, arrB): arr = [] i,j = 0,0 while i &amp;lt; len(arrA) and j &amp;lt; len(arrB): if arrA[i] &amp;lt; arrB[j]: arr.append(arrA[i]) i+=1 else: arr.append(arrB[j]) j+=1 for start in range(i, len(arrA)): arr.append(arrA[start]) for start in range(j, len(arrB)): arr.append(arrB[start]) return arr def merge_sort(arr): if len(arr) &amp;lt;= 1: return mid = len(arr) // 2 arrA = merge_sort(arr[:mid]) arrB = merge_sort(arr[mid:]) return merge(arrA, arrB) </description>
+      <guid>https://leonzyang.github.io/posts/pool/</guid>
+      <description>深入理解pool sync.Pool 是用来保存和获取临时对象的
+结构 type Pool struct { noCopy noCopy // 无法拷贝，保证唯一  local unsafe.Pointer // 本地pool，实际类型是[P]poolLocal 	localSize uintptr // 本地pool的大小  // get为空的时候，使用new去创建一个object 	New func() interface{} } type poolLocal struct { poolLocalInternal // Prevents false sharing on widespread platforms with 	// 128 mod (cache line size) = 0 . 	pad [128 - unsafe.Sizeof(poolLocalInternal{})%128]byte } type poolLocalInternal struct { private interface{} // 私有数据，不会被其他P获取到 	shared []interface{} // 共享数据，会被其他P获取 	Mutex // 锁 } 使用 put func (p *Pool) Put(x interface{}) { if x == nil { return } if race.</description>
     </item>
     
     <item>
-      <title>排序算法-堆排序</title>
-      <link>https://leonzyang.github.io/algo/sort/heap_sort/</link>
-      <pubDate>Sun, 18 Apr 2021 16:11:39 +0800</pubDate>
+      <title>Go-深入理解Panic</title>
+      <link>https://leonzyang.github.io/posts/panic/</link>
+      <pubDate>Sun, 27 Jun 2021 09:28:12 +0800</pubDate>
       
-      <guid>https://leonzyang.github.io/algo/sort/heap_sort/</guid>
-      <description> 时间复杂度O(nlogN) 不稳定排序   def heapify(tree, n, i): if i &amp;gt;= n: return max_index = i left_child = 2*i + 1 right_child = left_child + 1 if left_child &amp;lt; n and tree[max_index] &amp;lt; tree[left_child]: max_index = left_child if right_child &amp;lt; n and tree[max_index] &amp;lt; tree[right_child]: max_index = right_child if max_index != i: tree[i], tree[max_index] = tree[max_index], tree[i] heapify(tree, n, max_index) def build_heap(arr): last_node = len(arr) - 1 parent = (last_node - 1) // 2 for i in range(parent, -1, -1): heapify(arr, last_node, i) def heap_sort(arr): build_heap(arr) for i in range(1, len(arr)): arr[0], arr[len(arr)-i] = arr[len(arr)-i], arr[0] heapify(arr, len(arr)-i-1, 0) </description>
+      <guid>https://leonzyang.github.io/posts/panic/</guid>
+      <description>深入理解Panic 数据结构 //go:notinheap type _panic struct { argp unsafe.Pointer // 对应panic函数的指针 	arg interface{} // panic的参数 	link *_panic // 链接上一个panic，用链表存储 	recovered bool // 是否已被recovery 	aborted bool // 是否已中止 } panic具体调用的函数，我们可以用个例子写出
+package main func main(){ panic(&amp;#34;error&amp;#34;) } # go tool compile -S main.go ... 0x0028 00040 (panic_demo.go:4)	LEAQ	&amp;#34;&amp;#34;.statictmp_0(SB), AX 0x002f 00047 (panic_demo.go:4)	PCDATA	$2, $0 0x002f 00047 (panic_demo.go:4)	MOVQ	AX, 8(SP) 0x0034 00052 (panic_demo.go:4)	CALL	runtime.gopanic(SB) ... 可以看到是调用的gopanic函数，那我们看下gopanic函数做了什么</description>
     </item>
     
   </channel>

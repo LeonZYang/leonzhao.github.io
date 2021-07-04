@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="theme-color" content="#494f5c">
+	<meta name="msapplication-TileColor" content="#494f5c">
+<meta itemprop="name" content="Python-生成器">
+<meta itemprop="description" content="深入理解生成器 生成器是一种特殊的迭代器，当每次调用yield，函数就会暂停。生成器的好处就是节省内存空间。生成器有两种类型：生成器函数和生成器表达式
+生成器表达式 将列表推导式[]改成()就行
+gen=(i for i in range(10)) gen # &lt;generator object &lt;genexpr&gt; at 0x104d21960&gt; isinstance(gen, types.GeneratorType) # True isinstance(gen, collections.Iterator) # True isinstance(gen, collections.Iterable) # True 生成器函数yield def func(): yield 1 yield 2 yield 3 f = func() print(next(f)) # 1 print(next(f)) # 2 print(next(f)) # 3 next 通过next(next其实也是调用__next__)可以进行迭代使用，当达到最后一个元素之后，就会抛出StopIteration
+send 通过send我们可以想生成器函数发送数据，第一次发送必须是next之后，否则会报错，当然我们可以先调用send(None), 等价于next
+send可以向生成器传值的同时会让生成器前进到下一个yield语句，并将yield右侧的值作为返回值
+def func(): x = yield 1 r = yield x print(r) f = func() f.send(None) print(f.">
+<meta itemprop="datePublished" content="2021-06-27T09:58:40+08:00" />
+<meta itemprop="dateModified" content="2021-06-27T09:58:40+08:00" />
+<meta itemprop="wordCount" content="215">
+
+
+
+<meta itemprop="keywords" content="" />
+<meta property="og:title" content="Python-生成器" />
+<meta property="og:description" content="深入理解生成器 生成器是一种特殊的迭代器，当每次调用yield，函数就会暂停。生成器的好处就是节省内存空间。生成器有两种类型：生成器函数和生成器表达式
+生成器表达式 将列表推导式[]改成()就行
+gen=(i for i in range(10)) gen # &lt;generator object &lt;genexpr&gt; at 0x104d21960&gt; isinstance(gen, types.GeneratorType) # True isinstance(gen, collections.Iterator) # True isinstance(gen, collections.Iterable) # True 生成器函数yield def func(): yield 1 yield 2 yield 3 f = func() print(next(f)) # 1 print(next(f)) # 2 print(next(f)) # 3 next 通过next(next其实也是调用__next__)可以进行迭代使用，当达到最后一个元素之后，就会抛出StopIteration
+send 通过send我们可以想生成器函数发送数据，第一次发送必须是next之后，否则会报错，当然我们可以先调用send(None), 等价于next
+send可以向生成器传值的同时会让生成器前进到下一个yield语句，并将yield右侧的值作为返回值
+def func(): x = yield 1 r = yield x print(r) f = func() f.send(None) print(f." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://leonzyang.github.io/posts/py-generator/" />
+<meta property="article:published_time" content="2021-06-27T09:58:40+08:00" />
+<meta property="article:modified_time" content="2021-06-27T09:58:40+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Python-生成器"/>
+<meta name="twitter:description" content="深入理解生成器 生成器是一种特殊的迭代器，当每次调用yield，函数就会暂停。生成器的好处就是节省内存空间。生成器有两种类型：生成器函数和生成器表达式
+生成器表达式 将列表推导式[]改成()就行
+gen=(i for i in range(10)) gen # &lt;generator object &lt;genexpr&gt; at 0x104d21960&gt; isinstance(gen, types.GeneratorType) # True isinstance(gen, collections.Iterator) # True isinstance(gen, collections.Iterable) # True 生成器函数yield def func(): yield 1 yield 2 yield 3 f = func() print(next(f)) # 1 print(next(f)) # 2 print(next(f)) # 3 next 通过next(next其实也是调用__next__)可以进行迭代使用，当达到最后一个元素之后，就会抛出StopIteration
+send 通过send我们可以想生成器函数发送数据，第一次发送必须是next之后，否则会报错，当然我们可以先调用send(None), 等价于next
+send可以向生成器传值的同时会让生成器前进到下一个yield语句，并将yield右侧的值作为返回值
+def func(): x = yield 1 r = yield x print(r) f = func() f.send(None) print(f."/>
+
+	<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+	<link rel="manifest" href="/site.webmanifest">
+	<link rel="mask-icon" href="/safari-pinned-tab.svg" color="">
+	<link rel="shortcut icon" href="/favicon.ico">
+
+	<title>Python-生成器</title>
+	<link rel="stylesheet" href="https://leonzyang.github.io/css/style.min.eac77496566fd7d5768fd650ddb0b2b181ca6a2d7c5fdd6fe6b8ba4bf47e566f.css" integrity="sha256-6sd0llZv19V2j9ZQ3bCysYHKai18X91v5ri6S/R+Vm8=" crossorigin="anonymous">
+	
+</head>
+
+<body id="page">
+	
+	<header id="site-header" class="animated slideInUp">
+		<div class="hdr-wrapper section-inner">
+			<div class="hdr-left">
+				<div class="site-branding">
+					<a href="https://leonzyang.github.io">LeonZhao的小木屋</a>
+				</div>
+				<nav class="site-nav hide-in-mobile">
+					
+				<a href="https://leonzyang.github.io/posts/">博客</a>
+				<a href="https://leonzyang.github.io/datastruct/">数据结构</a>
+				<a href="https://leonzyang.github.io/algo/">算法</a>
+				<a href="https://leonzyang.github.io/network/">网络</a>
+				<a href="https://leonzyang.github.io/interview/">面试</a>
+				<a href="https://leonzyang.github.io/about/">关于</a>
+
+				</nav>
+			</div>
+			<div class="hdr-right hdr-icons">
+				<span class="hdr-social hide-in-mobile"><a href="https://github.com/" target="_blank" rel="noopener me" title="Github"><svg xmlns="http://www.w3.org/2000/svg" class="feather" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg></a></span><button id="menu-btn" class="hdr-btn" title=""><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+			</div>
+		</div>
+	</header>
+	<div id="mobile-menu" class="animated fast">
+		<ul>
+			<li><a href="https://leonzyang.github.io/posts/">博客</a></li>
+			<li><a href="https://leonzyang.github.io/datastruct/">数据结构</a></li>
+			<li><a href="https://leonzyang.github.io/algo/">算法</a></li>
+			<li><a href="https://leonzyang.github.io/network/">网络</a></li>
+			<li><a href="https://leonzyang.github.io/interview/">面试</a></li>
+			<li><a href="https://leonzyang.github.io/about/">关于</a></li>
+		</ul>
+	</div>
+
+
+	<main class="site-main section-inner animated fadeIn faster">
+		<article class="thin">
+			<header class="post-header">
+				<div class="post-meta"><span>Jun 27, 2021</span></div>
+				<h1>Python-生成器</h1>
+			</header>
+			<div class="content">
+				<h2 id="深入理解生成器">深入理解生成器<a href="#深入理解生成器" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h2>
+<p>生成器是一种特殊的迭代器，当每次调用yield，函数就会暂停。生成器的好处就是节省内存空间。生成器有两种类型：生成器函数和生成器表达式</p>
+<h3 id="生成器表达式">生成器表达式<a href="#生成器表达式" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<p>将列表推导式[]改成()就行</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">gen</span><span class="o">=</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">gen</span>  <span class="c1"># &lt;generator object &lt;genexpr&gt; at 0x104d21960&gt;</span>
+<span class="nb">isinstance</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">GeneratorType</span><span class="p">)</span>   <span class="c1"># True</span>
+<span class="nb">isinstance</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterator</span><span class="p">)</span>  <span class="c1"># True</span>
+<span class="nb">isinstance</span><span class="p">(</span><span class="n">gen</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Iterable</span><span class="p">)</span>  <span class="c1"># True</span>
+</code></pre></div><h3 id="生成器函数yield">生成器函数yield<a href="#生成器函数yield" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h3>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">func</span><span class="p">():</span>
+    <span class="k">yield</span> <span class="mi">1</span>
+    <span class="k">yield</span> <span class="mi">2</span>
+    <span class="k">yield</span> <span class="mi">3</span>
+
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">func</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>  <span class="c1"># 1</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>  <span class="c1"># 2</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>  <span class="c1"># 3</span>
+</code></pre></div><h4 id="next">next<a href="#next" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>通过next(next其实也是调用__next__)可以进行迭代使用，当达到最后一个元素之后，就会抛出StopIteration</p>
+<h4 id="send">send<a href="#send" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>通过send我们可以想生成器函数发送数据，第一次发送必须是next之后，否则会报错，当然我们可以先调用send(None), 等价于next</p>
+<p><code>send</code>可以向生成器传值的同时会让生成器前进到下一个<code>yield</code>语句，并将<code>yield</code>右侧的值作为返回值</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">func</span><span class="p">():</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="k">yield</span> <span class="mi">1</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">x</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">func</span><span class="p">()</span>
+<span class="n">f</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&#34;ok&#34;</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+</code></pre></div><p>首先我们先调用send初始化生成器，然后再<code>send(&quot;ok&quot;)</code>, 会将x进行覆盖，然后传给r，最后返回的就是&quot;ok&quot;</p>
+<h4 id="协程状态">协程状态<a href="#协程状态" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p><code>GEN_CREATE</code> 等待开始执行
+<code>GEN_RUNNING</code> 解释器正在执行
+<code>GEN_SUSPENDED</code> 在yield表达式处暂停
+<code>GEN_CLOSED</code> 执行结束
+使用<code>inspect.getgeneratorstat(generator)</code>可以查看</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">inspect</span> <span class="kn">import</span> <span class="n">getgeneratorstate</span>
+
+<span class="k">def</span> <span class="nf">md</span><span class="p">():</span>
+    <span class="k">yield</span> <span class="mi">1</span>
+    <span class="k">yield</span> <span class="mi">2</span>
+
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">md</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">getgeneratorstate</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>  <span class="c1"># GEN_CREATED</span>
+
+<span class="n">m</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">getgeneratorstate</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>  <span class="c1"># GEN_SUSPENDED</span>
+
+<span class="n">m</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">getgeneratorstate</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>  <span class="c1"># GEN_SUSPENDED</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">getgeneratorstate</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>  <span class="c1"># GEN_CLOSED</span>
+</code></pre></div><h4 id="yield-from">yield from<a href="#yield-from" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>yield from是<a href="https://www.python.org/dev/peps/pep-0380/">pep380</a>后加入的，可以将一个可迭代对象直接转为生成器</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">func</span><span class="p">():</span>
+    <span class="c1"># 不用在这样写</span>
+    <span class="c1"># for i in range(10):</span>
+    <span class="c1">#     yield i</span>
+    <span class="k">yield</span> <span class="kn">from</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">func</span><span class="p">():</span>
+    <span class="k">print</span> <span class="n">i</span>
+</code></pre></div><h4 id="throw">throw<a href="#throw" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>throw(typ[,val[,tb]])可以在yield出抛出某个异常, 如果捕获到这个错误，那么生成器会前进到下个yield，并将产出值做为throw的返回值，否则中止生成器</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">generator</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="s1">&#39;a&#39;</span>
+    <span class="k">except</span> <span class="ne">ZeroDivisionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&#34;catch &#34;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="s1">&#39;b&#39;</span>
+
+
+<span class="n">gen</span> <span class="o">=</span> <span class="n">generator</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">))</span>     
+<span class="k">print</span><span class="p">(</span><span class="n">gen</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="ne">ZeroDivisionError</span><span class="p">,</span> <span class="s1">&#39;error&#39;</span><span class="p">))</span> 
+
+<span class="c1">### 输出</span>
+<span class="c1"># a</span>
+<span class="c1"># catch  error</span>
+<span class="c1"># b</span>
+</code></pre></div><h4 id="return">return<a href="#return" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>生成器返回值，在python2中是不能使用return做返回值的，但是python3中却可以</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">generator</span><span class="p">():</span>
+    <span class="k">yield</span>
+    <span class="k">return</span> <span class="s1">&#39;a&#39;</span>
+
+
+<span class="n">gen</span> <span class="o">=</span> <span class="n">generator</span><span class="p">()</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">StopIteration</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&#34;catch &#34;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+</code></pre></div><p>执行上面返回的是catch e，当运行return，会把return的返回值做为StopIteration的值传递出去</p>
+<h4 id="close">close<a href="#close" class="anchor" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3"></path><line x1="8" y1="12" x2="16" y2="12"></line></svg></a></h4>
+<p>停止生成器，我们可以调用f.close(), close其实就是抛出一个GeneratorExit异常，让生成器退出，如果一个生成器函数被close掉后，还继续使用send或者next调用，会抛出异常StopIteration</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">generator</span><span class="p">():</span>
+    <span class="k">yield</span> <span class="mi">1</span>
+    <span class="k">yield</span> <span class="mi">2</span>
+    <span class="k">yield</span> <span class="mi">3</span>
+
+
+<span class="n">gen</span> <span class="o">=</span> <span class="n">generator</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">))</span>
+<span class="n">gen</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">))</span>
+</code></pre></div>
+			</div>
+			<hr class="post-end">
+			<footer class="post-info">
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></p>
+				<p><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>2021-06-27 09:58 &#43;0800</p>
+			</footer>
+		</article>
+		<div class="post-nav thin">
+			<a class="prev-post" href="https://leonzyang.github.io/posts/py-decorator/">
+				<span class="post-nav-label">&nbsp;<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span><br><span>Python-生成器</span>
+			</a>
+		</div>
+		<div id="comments" class="thin">
+</div>
+	</main>
+
+	<footer id="site-footer" class="section-inner thin animated fadeIn faster">
+		<p>&copy; 2021 <a href="https://leonzyang.github.io">LeonZhao</a> &#183; <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0</a></p>
+		<p>
+			Made with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> &#183; Theme <a href="https://github.com/Track3/hermit" target="_blank" rel="noopener">Hermit</a> &#183; <a href="https://leonzyang.github.io/posts/index.xml" target="_blank" title="rss"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rss"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg></a>
+		</p>
+	</footer>
+
+
+
+	<script src="https://leonzyang.github.io/js/bundle.min.4a9a0ac3d2217822c7865b4161e6c2a71de1d70492264337755427898dd718f6.js" integrity="sha256-SpoKw9IheCLHhltBYebCpx3h1wSSJkM3dVQniY3XGPY=" crossorigin="anonymous"></script>
+	
+
+</body>
+
+</html>
