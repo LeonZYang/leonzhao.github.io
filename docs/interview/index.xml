@@ -6,6 +6,18 @@
     <description>Recent content in 文章列表 on LeonZhao的小木屋</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><atom:link href="https://leonzyang.github.io/interview/index.xml" rel="self" type="application/rss+xml" />
+    <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
+    <lastBuildDate>Thu, 01 Jul 2021 09:34:34 +0800</lastBuildDate><atom:link href="https://leonzyang.github.io/interview/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>TCP三次挥手和四次握手</title>
+      <link>https://leonzyang.github.io/interview/tcp/</link>
+      <pubDate>Thu, 01 Jul 2021 09:34:34 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/interview/tcp/</guid>
+      <description>TCP三次挥手 TCP四次握手 为什么服务端要等2MSL然后才关闭 MSL：报文段最大生存时间，它是任何报文段被丢弃前在网络内的最长时间。
+第一点：保证TCP协议的全双工连接能够可靠关闭： 由于IP协议的不可靠性或者是其它网络原因，导致了Server端没有收到Client端的ACK报文，那么Server端就会在超时之后重新发送FIN，如果此时Client端的连接已经关闭处于CLOESD状态，那么重发的FIN就找不到对应的连接了，从而导致连接错乱，所以，Client端发送完最后的ACK不能直接进入CLOSED状态，而要保持TIME_WAIT，当再次收到FIN的收，能够保证对方收到ACK，最后正确关闭连接。 第二点：保证这次连接的重复数据段从网络中消失 如果Client端发送最后的ACK直接进入CLOSED状态，然后又再向Server端发起一个新连接，这时不能保证新连接的与刚关闭的连接的端口号是不同的，也就是新连接和老连接的端口号可能一样了，那么就可能出现问题：如果前一次的连接某些数据滞留在网络中，这些延迟数据在建立新连接后到达Client端，由于新老连接的端口号和IP都一样，TCP协议就认为延迟数据是属于新连接的，新连接就会接收到脏数据，这样就会导致数据包混乱。所以TCP连接需要在TIME_WAIT状态等待2倍MSL，才能保证本次连接的所有数据在网络中消失。
+https://www.cnblogs.com/onesea/p/13053697.html</description>
+    </item>
+    
   </channel>
 </rss>

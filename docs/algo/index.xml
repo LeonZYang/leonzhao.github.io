@@ -52,6 +52,15 @@ def recursion(参数): if 结束条件: return 处理问题 recursion(缩小参�
     </item>
     
     <item>
+      <title>常用五大算法-动态规划</title>
+      <link>https://leonzyang.github.io/algo/dynamic_programing/</link>
+      <pubDate>Sun, 09 May 2021 16:49:19 +0800</pubDate>
+      
+      <guid>https://leonzyang.github.io/algo/dynamic_programing/</guid>
+      <description>动态规划 </description>
+    </item>
+    
+    <item>
       <title>常用五大算法-回溯</title>
       <link>https://leonzyang.github.io/algo/backtrack/</link>
       <pubDate>Sat, 08 May 2021 15:11:03 +0800</pubDate>
@@ -97,15 +106,6 @@ def recursion(参数): if 结束条件: return 处理问题 recursion(缩小参�
       
       <guid>https://leonzyang.github.io/algo/sort/insert_sort/</guid>
       <description> 时间复杂度O(n2) 稳定排序   def insert_sort(arr): if len(arr) &amp;lt;= 1: return for i in range(1, len(arr)): j = i while j &amp;gt; 0: if arr[j] &amp;lt; arr[j - 1]: arr[j], arr[j - 1] = arr[j - 1], arr[j] j -= 1 else: break </description>
-    </item>
-    
-    <item>
-      <title>排序算法-选择排序</title>
-      <link>https://leonzyang.github.io/algo/sort/select_sort/</link>
-      <pubDate>Sun, 18 Apr 2021 16:11:24 +0800</pubDate>
-      
-      <guid>https://leonzyang.github.io/algo/sort/select_sort/</guid>
-      <description> 时间复杂度O(n2) 不稳定排序   def select_sort(arr): for i in range(len(arr)): min_index = i for j in range(j+1, len(arr)): if arr[i] &amp;lt; arr[j]: min_index = j if min_index != i: arr[i], arr[min_index] = arr[min_index], arr[i] </description>
     </item>
     
   </channel>
